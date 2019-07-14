@@ -28,6 +28,9 @@ require(gridExtra)
 
 * **BUT** you will need to be able to read model output from a statistical package - whether `R` or some other software.
 
+* GitHub repository - will contain all course materials by the end of the week:
+
+  <https://github.com/gitMarcH/Chanco_ST6103>
 
 #
 
