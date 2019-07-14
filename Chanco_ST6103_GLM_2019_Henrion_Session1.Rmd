@@ -1,0 +1,630 @@
+---
+title: "ST6103 - GLM - Session 1"
+author: "Marc Henrion"
+date: "15 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+# Preliminaries
+
+* These notes were written in `R markdown`.
+
+* All examples / code in these notes is `R`.
+
+* You will NOT be assessed on `R` in the examination for this module, only on GLM theory. GLMs can be fitted with any other statistical programming package and it is straightforward to write your own fitting routine in any programming language. `R` / Stata / SAS / ... will be useful if you plan a career in (bio)statistics. I **highly** recommend `R`.
+
+* **BUT** you will need to be able to read model output from a statistical package - whether `R` or some other software.
+
+
+#
+
+## Session 1: Linear Model
+
+# Notation
+
+* $X, Y$ - random variables (here: X = predictor, Y = response)
+
+* $x, y$ - measured / observed values
+
+* $\epsilon$ - random variable (here: error / residual)
+
+* $\mathbf{\theta}$ - a vector of parameters
+
+* $\bar{X}$, $\bar{Y}$ - sample mean estimators for X, Y
+
+* $\bar{x}$, $\bar{y}$ - sample mean estimates of X, Y
+
+* $\hat{T}$, $\hat{t}$ - given a statistic T, estimator and estimate of T
+
+* $P(A)$ - probability of an event A occuring
+
+* $f_X(.)$, $f_Y(.)$ - distribution mass / density functions of X, Y
+
+* $X\sim F$ - X distributed according to distribution function F
+
+* $E[X]$, $E[Y]$, $E[T]$ - the expectation of X, Y, T respectively
+
+
+# Linear model
+
+
+Generalised linear models form an important family of regression models.
+
+**Regression** means describing some aspect of a dependent variable $Y$ as a function of some predictor or independent variables $\mathbf{X}$ and parameters $\mathbf{\theta}$:
+
+$$\,$$
+
+$$f_1(Y)=f_2(\mathbf{X};\mathbf{\theta})$$
+$$\,$$
+
+Here we focus on describing a function of the mean of $Y$ as a function of a **linear predictor** of $X$.
+
+3 main reasons for fitting regression models: **inference**, **prediction**, **adjustment**.
+
+
+# Linear model
+
+Let's suppose we have some data:
+
+$$\,$$
+
+```{r}
+set.seed(20190715)
+
+df<-tibble(
+  x=runif(25,min=-5,max=5),
+  y=1.5*x+rnorm(25,sd=2)+3.5
+)
+
+ggplot(data=df,aes(x=x,y=y)) + 
+  geom_point(size=3) +
+  theme(text = element_text(size=20)) 
+```
+
+
+# Linear model
+
+Looks like there is a **linear** relationship between the 2 variables:
+
+as $x\nearrow$, so $y\nearrow$
+
+$$\,$$
+
+We can try to guess what that relationship is.
+
+E.g. we can guess $y\approx x+3$:
+
+```{r}
+ggplot(data=df,aes(x=x,y=y)) + 
+  geom_abline(intercept=3,slope=1,colour="steelblue",lwd=1.5) +
+  geom_point(size=3) +
+  theme(text = element_text(size=20)) 
+```
+
+
+# Linear model
+
+Looks good? Maybe the slope should be a bit steeper, the intercept larger?
+
+$y\approx 2x+4$
+
+$$\,$$
+
+```{r}
+ggplot(data=df,aes(x=x,y=y)) + 
+  geom_abline(intercept=4,slope=2,colour="salmon",lwd=2) +
+  geom_point(size=3) +
+  theme(text = element_text(size=20)) 
+```
+
+
+# Linear model
+
+Which line to pick?
+
+$$\,$$
+
+```{r}
+ggplot(data=df,aes(x=x,y=y)) + 
+  geom_abline(intercept=3,slope=0.5,colour="darkgrey",lwd=2) +
+  geom_abline(intercept=3.1,slope=1,colour="steelblue",lwd=2) +
+  geom_abline(intercept=3.8,slope=1.25,colour="mediumorchid",lwd=2) +
+  geom_abline(intercept=2.8,slope=1.75,colour="orange",lwd=2) +
+  geom_abline(intercept=3.5,slope=2,colour="salmon",lwd=2) +
+  geom_abline(intercept=4,slope=2.5,colour="greenyellow",lwd=2) +
+  geom_point(size=3) +
+  theme(text = element_text(size=20)) 
+```
+
+
+# Linear model
+
+We can try to minimize the errors, i.e. the deviations of the observed data from the line. Since these errors can be positive or negative, we minimise the sum of the squares.
+
+This is the principle of **ordinary least squares** (OLS).
+
+$$\,$$
+
+Let $\hat{y}_i=\beta_0+\beta_1 x_i$.
+
+We want to find values for $\beta_0, \beta_1$ that minimise
+$$SS=\sum_i (y_i - \hat{y}_i)^2=\sum_i(y_i-\beta_0-\beta_1 x_i)^2$$
+$$\,$$
+
+$SS$ above is often also called the error or residual sum of squares (ESS).
+
+
+# Linear model
+
+```{r}
+ggplot(data=df,aes(x=x,y=y)) + 
+  geom_abline(intercept=3,slope=1,colour="steelblue",lwd=2) +
+  geom_segment(aes(x=x,xend=x,y=y,yend=x+3),colour="red",lwd=1.5) +
+  geom_point(size=4) +
+  theme(text = element_text(size=20)) 
+```
+
+# Linear model
+
+We can write the sum of squares as a function in R:
+
+```{r}
+sumSquares<-function(beta,dat=df){
+  return(
+    sum( (dat$y - (beta[1]+beta[2]*dat$x))^2 )
+  )
+}
+```
+
+We can then try this for several values, hoping to find the minimum:
+
+```{r}
+sumSquares(c(0,0))
+sumSquares(c(0,1))
+sumSquares(c(3,1.5))
+```
+
+
+# Linear model
+
+There are minimisation algorithms that can do this for us.
+
+```{r}
+betaHat<-optim(fn=sumSquares,par=c(0,0))
+print(betaHat$par)
+print(betaHat$value)
+```
+
+$$\,$$
+
+`betaHat` is a list object.
+
+Check what else it reports by typing `print(betaHat)`.
+
+For more details about `optim`, type `?optim`.
+
+
+# Linear model
+
+What we have done, is fit a **linear model**.
+
+$$y_i = \beta_0 + \beta_1 x_i + \epsilon_i$$
+
+$$\,$$
+
+In other words, for a dependent variable $Y$ and an independent variable $X$ we hypothesise there is a model
+
+$$Y=\beta_0+\beta_i X +\epsilon$$
+
+where $\epsilon$ is a random variable.
+
+
+Note that by using least squares we only fit a function to data as best as we can. We don't make any *distributional* assumptions about $Y$ or $\epsilon$. 
+
+
+# Linear model
+
+We can fit this directly (without writing down the sum of squares function) by using the R function `lm` or `glm`.
+
+
+$$\,$$
+
+```{r}
+mod<-lm(y~x,data=df)
+
+print(mod)
+```
+
+
+
+# Linear model
+
+We can get more information by typing `summary(mod)`.
+$$\,$$
+You get the same results by using `glm` rather than `lm`.
+
+
+# Linear model
+
+Write $\bar{x}$, $\bar{y}$ for the sample means and define:
+$$\,$$ 
+$$SS_y=\sum_i(y_i-\bar{y})^2$$
+$$SS_x=\sum_i(x_i-\bar{x})^2$$
+$$S_{xy}=\sum_i(x_i-\bar{x})(y_i-\bar{y})$$
+
+$$\,$$
+
+Note: $SS_y$ is also often called the total sum of squares (TSS).
+
+# Linear model
+
+The LS estimates for the parameters $\beta_0,\beta_1$ are:
+$$\,$$
+$$\hat{\beta}_1=S_{xy}/SS_x$$
+
+$$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}$$
+
+$$\,$$
+
+For calculating this by hand, it is usally easier to write
+
+$S_{xy}=\sum_i x_iy_i-n\bar{x}\bar{y}$
+$SS_x=\sum_ix_i^2-n\bar{x}^2$
+
+$$\,$$
+
+Exercise:
+
+Prove that $\hat{\beta}_0$ and $\hat{\beta_1}$ are the OLS solution.
+
+# Linear model
+
+Proof:
+$$\,$$
+
+We require:
+$$
+\begin{cases}
+\frac{\delta}{\delta\beta_0}\sum_i(y_i-\beta_0-\beta_1 x_i)^2=0 \;\;\;\;\;\;\;\;\;\; (1)\\
+\frac{\delta}{\delta\beta_1}\sum_i(y_i-\beta_0-\beta_1 x_i)^2=0 \;\;\;\;\;\;\;\;\;\; (2)
+\end{cases}
+$$
+
+# Linear model
+
+Proof:
+$$\,$$
+
+From (1) we get:
+
+$\text{ }$ $\sum_i (-2)(y_i-\hat{\beta}_0-\hat{\beta}_1 x_i) = 0$
+ 
+$\text{ }$ $\;\;\;\Rightarrow \sum_i y_i -n\hat{\beta_0}-\hat{\beta}_1\sum_ix_i = 0$
+ 
+$\text{ }$ $\;\;\;\Rightarrow \bar{y} -\hat{\beta_0}-\hat{\beta}_1\bar{x}=0$
+ 
+$\text{ }$ $\;\;\;\Rightarrow \hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x} \;\;\;\;\;\;\;\;\;\; (3)$
+
+
+# Linear model
+
+Proof:
+$$\,$$
+
+From (2) we get:
+
+$\text{ }$ $\sum_i (-2)x_i(y_i-\hat{\beta}_0-\hat{\beta}_1 x_i) = 0$
+
+$\text{ }$ $\Rightarrow \sum_i (x_iy_i-\hat{\beta}_0x_i-\hat{\beta}_1 x_i^2) = 0 \;\;\;\;\;\;\;\;\;\; (4)$
+
+Substituting (3) into (4):
+
+$\text{ }$ $\sum_i (x_iy_i-x_i\bar{y}+\hat{\beta}_1\bar{x}x_i-\hat{\beta}_1 x_i^2) = 0$
+
+$\text{ }$ $\Rightarrow \sum_i (x_iy_i-x_i\bar{y})-\hat{\beta}_1\sum_i(x_i^2-\bar{x}x_i) = 0$
+
+$\text{ }$ $\Rightarrow \hat{\beta}_1 = \frac{\sum_i (x_iy_i-x_i\bar{y})}{\sum_i(x_i^2-\bar{x}x_i)} \;\;\;\;\;\;\;\;\;\; (5)$
+
+
+# Linear model
+
+Proof:
+$$\,$$
+Now, this can be simplified by noting that $\sum_i(\bar{x}\,\bar{y}-\bar{x}y_i)=0$ and $\sum_i(\bar{x}^2-\bar{x}x_i)=0$ and adding these terms to the numerator and denominator respectively of (5).
+$$\,$$
+
+$\hat{\beta}_1 = \frac{\sum_i (x_iy_i-x_i\bar{y}) + \sum_i(\bar{x}\,\bar{y}-\bar{x}y_i) }{\sum_i(x_i^2-\bar{x}x_i) + \sum_i(\bar{x}^2-\bar{x}x_i)} = \frac{\sum_i(x_i-\bar{x})(y_i-\bar{y})}{\sum_i(x_i-\bar{x})^2}=\frac{S_{xy}}{SS_x}$
+
+$$\,$$
+QED
+
+
+# Linear model
+
+For calculating by hand, the formulas most useful are
+$$\,$$
+
+$$\hat{\beta}_1 = \frac{\sum_ix_iy_i-n\bar{x}\bar{y}}{\sum_ix_i^2-n\bar{x}^2}$$
+$$\,$$
+$$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}$$
+
+
+# Linear model
+
+Example (to be calculated by hand):
+
+```{r}
+x<-c(1,3,4,5,8,10)
+y<-c(1,5,10,11,19,18)
+n<-length(x)
+
+df<-data.frame(x=x,y=y,xy=NA,x2=NA)
+print(df)
+```
+
+
+# Linear model
+
+Example (continued)
+
+```{r}
+df$xy<-x*y
+df$x2=x^2
+
+print(df)
+```
+
+
+# Linear model
+
+Example (continued)
+
+```{r}
+Sxy<-sum(df$xy)-n*mean(x)*mean(y)
+SSx<-sum(df$x2)-n*mean(x)^2
+
+beta1<-Sxy/SSx
+beta0<-mean(y)-beta1*mean(x)
+
+print(c(beta0,beta1))
+print(as.vector(coef(lm(y~x))))
+
+plot(x,y,cex=2)
+xx<-seq(0,10,length=100)
+yy<-beta0+beta1*xx
+lines(xx,yy,col="steelblue",lwd=2.5)  
+```
+
+
+# Linear model
+
+Parameter interpretation:
+$$\,$$
+
+* $\hat{\beta}_0$ is the estimated *intercept* of the fitted regression line
+* $\hat{\beta}_1$ is the estimated *slope* of the fitted regression line
+
+
+# Linear model
+
+The total variation (total sum of squares = TSS) in the data is $SS_y$ and you can show that this can be split into 2 components: TSS = RSS + ESS
+
+* the regression sum of squares $RSS = \sum_i (\hat{y}_i-\bar{y})^2 = S_{xy}^2/SS_x$
+* the error / residual sum of squares $ESS = \sum_i (y_i-\hat{y}_i)^2 = SS_y-(S_{xy}^2/SS_x)$
+
+$$\,$$
+
+The **coefficient of determination** $R^2$ gives the proportion of the variation that is explained by the regression model.
+
+$$R^2=\frac{RSS}{TSS}=\frac{S_{xy}^2}{SS_x SS_y}$$
+$R^2$ is also the squared sample correlation coefficient.
+
+
+# Linear model
+
+So far we just fitted a line. Implicitly we made the following assumptions:
+
+* The data used to fit the model are representative of the underlying population.
+* The true relationship between $X$ and $Y$ is linear.
+
+$$\,$$
+
+If we want to make *statistical inference* about any of the parameters in the model, we need to make additional assumptions:
+
+* the random error $\epsilon\sim\mathcal{N}(0,\sigma^2)$ - specifically this implies that the residuals $\epsilon_i$ are *homoscedastic* (have equal variance)
+* the observations $y_i$ are independent given the $x_i$ - in other words the residuals $\epsilon_i$ are independent
+
+
+# Linear model
+
+Once we have made these assumptions, we can do statistical tests:
+
+* test if $\beta_1=0$?
+* test if the population correlation parameter $\rho=0$
+
+The above 2 tests are in fact equal.
+
+($R^2=\frac{S^2_{xy}}{SS_xSS_y}, \hat{\beta}_1=\frac{S_{xy}}{SS_x} \Rightarrow R^2=\hat{\beta}_1\frac{SS_x}{SS_y}$ and $SS_x>0$ or both undefined).
+
+$$\,$$
+
+We can also test if the intercept $\beta_0=0$ (or some other value), but this test is usually not sensible as $\beta_0$, the average value of $Y$ if $X=0$, has, in most situations, little more meaning than providing a numerical scale for the observed values.
+
+
+# Linear model
+
+As in one-way ANOVA, the linear regression model relates an outcome $Y$ to a predictor $X$. In ANOVA $X$ is discrete, in linear regression $X$ is continuous (though the mathematics above work just as well if $X$ is binary).
+$$\,$$
+
+We can produce an ANOVA-like table and define an $F$ statistic that can be used to test if $\beta_1=0$.
+
+![Analysis of variance table for the simple linear regression (Woodward, M., 2014, *Epidemiology, 3^rd^ed.*, CRC Press). Note the slight change in notation for the sums of squares in the above table.](images/LinReg_SS_Table.jpg)
+
+
+# Linear model
+
+By assuming $\epsilon_i\sim\mathcal{N}(0,\sigma^2)$, we can also compute the model likelihood:
+
+$$L(\beta_0,\beta_1)=\prod_i \phi(y_i-\beta_0-\beta_1x_i|0,\sigma^2)$$
+where $\phi(.|\mu,\sigma^2)$ is the probability density function for a normal distribution with mean $\mu$ and variance $\sigma^2$.
+
+We can find values $\hat{\beta}_0'$ and $\hat{\beta}_1'$ that maximise $L(\beta_0,\beta_1)$. This is the principle of **maximum likelihood estimation** (MLE).
+
+# Linear model
+
+Exercise:
+$$\,$$
+
+Show that the MLE estimators are equal to the OLS estimators, i.e. $\hat{\beta}_0'=\hat{\beta}_0$ and $\hat{\beta}_1'=\hat{\beta}_1$.
+
+$$\,$$
+Note: this may be surprising, since we had to make additional assumptions to be able to write down the likelihood function.
+
+
+# Linear model
+
+Proof:
+$$\,$$
+
+Rather than maximising directly the likelihood, we can equivalently minimise the negative log likelihood $l(\beta_0,\beta_1)$.
+$$\,$$
+
+$$l(\beta_0,\beta_1)=-\sum_i log\left(\left(\frac{1}{2\pi\sigma^2}\right)^{1/2}exp\left(-\frac{1}{2\sigma^2}(y_i-\beta_0-\beta_1x_i)^2\right)\right) = -\frac{n}{2}log\left(\frac{1}{2\pi\sigma^2}\right)+\frac{1}{2\sigma^2}\sum_i(y_i-\beta_0-\beta_1x_i)^2$$
+
+# Linear model
+
+Proof:
+$$\,$$
+
+The first term is just a constant, so it suffises to minimise (with respect to $\beta_0$, $\beta_1$) the second term, i.e. minimise:
+$$\,$$
+
+$$\sum_i (y_i-\beta_0-\beta_1x_i)^2$$
+
+This is obviously just the sum of squares which we minimised in OLS - so this will yield the same solution.
+$$\,$$
+
+QED
+
+
+# General linear model
+
+For OLS, the variance of the errors ($\sigma^2$) is irrelevant as far as the optimisation is concerned. In MLE, while the likelihood does feature $\sigma^2$, this parameter drops out during the optimisation.
+
+This means we do not have an OLS or MLE estimator for $\sigma^2$.
+
+We can however estimate $\sigma^2$ by summing all the squared errors using the OLS/MLE estimates $\hat{\beta}_0, \hat{\beta}_1$, then dividing by the corresponding degrees of freedom. Since we estimate 2 parameters ($\beta_0, \beta_1$), the degrees of freedom are $n-2$.
+
+
+# General linear model
+
+This estimator for $\sigma^2$ is the **mean squared error** (MSE):
+$$\,$$
+$$\hat{\sigma}^2=MSE=\frac{\sum_i(y_i-\hat{y}_i)^2}{n-2}=\frac{\sum_i(y_i-\hat{\beta}_0-\hat{\beta}_1x_i)^2}{n-2}$$
+$$\,$$
+
+Note that the MSE is different from $s^2=\frac{\sum_i(y_i-\bar{y})^2}{n-1}$ which is an estimate of the population variance of $Y$.
+
+It can be shown that the MSE is an unbiased estimator of $\sigma^2$.
+
+
+# General linear model
+
+What we have seen so far is the **linear model** also known as **simple linear regression**:
+
+$$Y=\beta_0+\beta_1X+\epsilon$$
+where $\epsilon\sim\mathcal{N}(0,\sigma^2)$
+
+$$\,$$
+
+This can be generalised:
+
+* multiple predictors, both numerical and/or categorical: **general linear model**
+* non-normal error + link function: **generalised linear model (GLM)**
+
+$$\,$$
+
+The *general linear model* includes both simple and multiple linear regression as well as AN(C)OVA (with fixed effects only) models.
+
+
+# General linear model
+
+Response $Y$, related to $p$ predictor variables $X_1, \ldots, X_p$:
+
+$$Y=\beta_0+\beta_1X_1+\ldots+\beta_pX_p+\epsilon$$
+with $\epsilon\sim \mathcal{N}(0,\sigma^2)$.
+
+$$\,$$
+
+Note the model is *linear* in the parameters $\beta_0, \beta_1, \ldots, \beta_p$.
+
+E.g. $Y=\beta_0+\beta_1X+\beta_2X^2+\epsilon$ is a general linear model but $Y=\beta_0+\beta_1X+\beta_1^2X^2+\epsilon$ is not.
+
+
+# General linear model
+
+Easier to use matrix notation.
+
+Let:
+
+$$\mathbf{Y}=(Y_1,\ldots,Y_n)^T$$
+$$\,$$
+$$\mathbf{X}=\left(
+\begin{align}
+1      & \; X_{1,1} & \;\ldots & \; X_{1,p} \\
+\vdots & \;\vdots   & \;\vdots & \;\vdots  \\
+1      & \; X_{n,p} & \;\ldots & \;X_{n,p}
+\end{align}
+\right)$$
+$$\,$$
+$$\mathbf{\epsilon}=(\epsilon_1\ldots\epsilon_n)^T$$
+$$\,$$
+$$\mathbf{\beta}=(\beta_0,\ldots,\beta_p)^T$$
+
+# General linear model
+
+Then we can write the general linear model as
+$$\,$$
+
+$$\mathbf{Y}=\mathbf{X}\mathbf{\beta}+\mathbf{\epsilon}$$
+where $\epsilon\sim\mathcal{N}(\mathbf{0},\sigma^2\mathbf{I})$.
+$$\,$$
+
+This can also be written as:
+$$E\left(\mathbf{Y}|\mathbf{X}\right)=\mathbf{X}\mathbf{\beta}$$
+
+# General linear model
+
+For observed data $\mathbf{y}$ and $\mathbf{x}$, the ML / LS estimates are given by
+$$\,$$
+$$\hat{\mathbf{\beta}}=\left(\mathbf{x}^T\mathbf{x}\right)^{-1}\mathbf{x}^T\mathbf{y}$$
+
+This requires $\mathbf{x}^T\mathbf{x}$ to be invertible.
+
+
+# General linear model
+
+Exercise:
+$$\,$$
+
+For the $p=1$ case, show that $\left(\mathbf{x}^T\mathbf{x}\right)^{-1}\mathbf{x}^T\mathbf{y}$ gives the same ML / LS estimates that we previously derived for the simple linear regression.
+
+[see Practical 1]
+
+
+#
+
+[end of ST6103 GLM Session 1]

@@ -1,0 +1,112 @@
+---
+title: "ST6103 - GLM - Practical 1"
+author: "Marc Henrion"
+date: "15 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 1: Linear Model
+
+# Notation
+
+* $X, Y$ - random variables (here: X = predictor, Y = response)
+
+* $x, y$ - measured / observed values
+
+* $\epsilon$ - random variable (here: error / residual)
+
+* $\mathbf{\theta}$ - a vector of parameters
+
+* $\bar{X}$, $\bar{Y}$ - sample mean estimators for X, Y
+
+* $\bar{x}$, $\bar{y}$ - sample mean estimates of X, Y
+
+* $\hat{T}$, $\hat{t}$ - given a statistic T, estimator and estimate of T
+
+* $P(A)$ - probability of an event A occuring
+
+* $f_X(.)$, $f_Y(.)$ - distribution mass / density functions of X, Y
+
+* $X\sim F$ - X distributed according to distribution function F
+
+* $E[X]$, $E[Y]$, $E[T]$ - the expectation of X, Y, T respectively
+
+
+# Exercise 1
+
+Recall that we have defined: $TSS = \sum_i(y_i-\bar{y})^2$, $RSS = \sum_i (\hat{y}_i - \bar{y})^2$, $ESS = \sum(y_i-\hat{y}_i)^2$ where $\hat{y}_i=\hat{\beta}_0+\hat{\beta}_1x_i$ are the model predictions. We also defined $R^2=\frac{RSS}{TSS}$ (the proportion of variation explained by the regression model) and recall that $\rho(\mathbf{x},\mathbf{y})=\frac{Cov(\mathbf{x},\mathbf{y})}{\sqrt{Var(\mathbf{x})Var(\mathbf{y})}}$.
+
+Show / prove that:
+
+a. TSS = RSS + ESS
+
+b. RSS = $\frac{S^2_{xy}}{SS_x}$
+
+c. $R^2=\rho(\mathbf{x},\mathbf{y})^2$.
+
+    Recall that we defined $R^2=\frac{RSS}{TSS}$ and $\rho(\mathbf{x}\mathbf{y})=Cor(\mathbf{x},\mathbf{y})=\frac{Cov(\mathbf{x}\mathbf{y})}{\sqrt{Var(\mathbf{x})Var(\mathbf{y})}}$.
+
+
+# Exercise 2
+
+You are given the following data: $\mathbf{x}=(-3,-1,0,2,5,6)^T$, $\mathbf{y}=(12,9,11,9,9,6)^T$.
+
+a. Calculate (by hand!) the estimates $\hat{\beta}_0$ and $\hat{\beta}_1$ for a linear regression model $Y=\beta_0+\beta_1X+\epsilon$.
+
+b. Describe the resulting regression line:
+
+    * What is the relationship between variables $X$ and $Y$?
+  
+    * How much (on average) does $Y$ change when $X$ changes by 1?
+ 
+    * What value does $Y$ take (on average) when $X=0$?
+  
+c. Does this seem to be a good model?
+
+d. Compute (by hand!) the residuals $\epsilon_i = y_i-\hat{y}_i, i=1,\ldots,6$.
+
+e. Predict new values for X=-40.1, X=1, X=2.5, X=100. How confident are you of these predictions?
+
+![Template for manual calculation](LinearRegressionByHandTemplate.png)
+
+
+# Exercise 3
+
+For $p=1$, show that
+$$\,$$
+$$\hat{\mathbf{\beta}}=\left(\mathbf{x}^T\mathbf{x}\right)^{-1}\mathbf{x}^T\mathbf{y}$$
+
+is equivalent to writing
+$$\,$$
+
+$$\hat{\beta}_1=S_{xy}/SS_x$$
+$$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}$$
+
+# Exercise 4
+
+$$\,$$
+Show that the MSE is an unbiased estimator of $\sigma^2$.
+
+$$\,$$
+$$\,$$
+
+Note: this exercise is harder and is not examinable.
+
+#
+
+[end of ST6103 GLM Practical 1]
