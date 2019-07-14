@@ -1,2 +1,3 @@
 # Chanco_ST6103
-Chancellor College Module ST6103 - GLM
+
+This repository contains lecture notes and practical for the Chancellor College MSc Biostatistics module ST6103 - GLM.
