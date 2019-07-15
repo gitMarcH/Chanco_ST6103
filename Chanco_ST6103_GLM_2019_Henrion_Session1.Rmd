@@ -597,15 +597,16 @@ $$\mathbf{Y}=(Y_1,\ldots,Y_n)^T$$
 $$\,$$
 $$\mathbf{X}=\left(
 \begin{align}
-1      & \; X_{1,1} & \;\ldots & \; X_{1,p} \\
+1      & \; X_{11} & \;\ldots & \; X_{p1} \\
 \vdots & \;\vdots   & \;\vdots & \;\vdots  \\
-1      & \; X_{n,p} & \;\ldots & \;X_{n,p}
+1      & \; X_{1n} & \;\ldots & \;X_{pn}
 \end{align}
 \right)$$
 $$\,$$
-$$\mathbf{\epsilon}=(\epsilon_1\ldots\epsilon_n)^T$$
-$$\,$$
 $$\mathbf{\beta}=(\beta_0,\ldots,\beta_p)^T$$
+$$\,$$
+$$\mathbf{\epsilon}=(\epsilon_1\ldots\epsilon_n)^T$$
+
 
 # General linear model
 
@@ -623,6 +624,11 @@ E\left(\mathbf{Y}|\mathbf{X}\right)=\mathbf{X}\mathbf{\beta} \\
 Var(\mathbf{Y}-\mathbf{X}\mathbf{\beta})=\sigma^2
 \end{cases}
 $$
+$$\,$$
+$\mathbf{X}$ is called the **design matrix**.
+
+Dimensions: $\mathbf{Y}$ is $n\times1$, $\mathbf{X}$ is $n\times(p+1)$, $\mathbf{\beta}$ is $(p+1)\times1$, $\mathbf{\epsilon}$ is $x\times1$.
+
 
 # General linear model
 

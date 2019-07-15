@@ -1,0 +1,92 @@
+---
+title: "ST6103 - GLM - Practical 2"
+author: "Marc Henrion"
+date: "16 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 2: Generalised Linear Models using R
+
+# Notation
+
+* $X, Y$ - random variables (here: X = predictor, Y = response)
+
+* $x, y$ - measured / observed values
+
+* $\epsilon$ - random variable (here: error / residual)
+
+* $\mathbf{\theta}$ - a vector of parameters
+
+* $\bar{X}$, $\bar{Y}$ - sample mean estimators for X, Y
+
+* $\bar{x}$, $\bar{y}$ - sample mean estimates of X, Y
+
+* $\hat{T}$, $\hat{t}$ - given a statistic T, estimator and estimate of T
+
+* $P(A)$ - probability of an event A occuring
+
+* $f_X(.)$, $f_Y(.)$ - distribution mass / density functions of X, Y
+
+* $X\sim F$ - X distributed according to distribution function F
+
+* $E[X]$, $E[Y]$, $E[T]$ - the expectation of X, Y, T respectively
+
+
+# Exercise 1
+
+Download the file `byHandExample1.csv` from the GitHub repository.
+$$\,$$
+Use `read.csv()` or `read.table()` to read this dataset into `R`.
+$$\,$$
+
+Use the R functions `lm()` or `glm()` to fit the same linear model as we did yesterday when we calculated $\beta_0$ and $\beta_1$ by hand.
+$$\,$$
+
+* Convince yourself you get the same results.
+
+* What difference - if any - do you observe between using `lm()` and `glm()`?
+
+* Find out more about these r functions by typing `?lm` and `?glm`.
+
+
+# Exercise 2
+
+Manually code up the data from yesterday's Exercise 2 in Practical 1.
+
+Then refit the same model from yesterday using `R`.
+
+* Convince yourself you get the same results.
+
+* Calculate $R^2$.
+
+
+
+# Exercise 3
+
+Load the `mtcars` dataset by typing `data(mtcars)`. Get information about this dataset by typing `?mtcars`.
+
+* Explore this dataset: produce histograms for the different variables and produce pairwise scatterplots. 
+
+* You want to find out which variables are most important to achieve a high miles per gallon rating in a car. Use `R` to build a GLM model to do this.
+
+* Buid a model that would allow you to predict whether a car has manual or automatic transmission.
+
+
+# 
+
+[end of ST6103 GLM Practical 2]

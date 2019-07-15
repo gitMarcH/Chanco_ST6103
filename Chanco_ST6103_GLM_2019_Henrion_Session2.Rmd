@@ -1,0 +1,426 @@
+---
+title: "ST6103 - GLM - Session 2"
+author: "Marc Henrion"
+date: "16 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Session 2: Generalised Linear Model
+
+
+# Notation
+
+* $X, Y$ - random variables (here: X = predictor, Y = response)
+
+* $x, y$ - measured / observed values
+
+* $\epsilon$ - random variable (here: error / residual)
+
+* $\mathbf{\theta}$ - a vector of parameters
+
+* $\bar{X}$, $\bar{Y}$ - sample mean estimators for X, Y
+
+* $\bar{x}$, $\bar{y}$ - sample mean estimates of X, Y
+
+* $\hat{T}$, $\hat{t}$ - given a statistic T, estimator and estimate of T
+
+* $P(A)$ - probability of an event A occuring
+
+* $f_X(.)$, $f_Y(.)$ - distribution mass / density functions of X, Y
+
+* $X\sim F$ - X distributed according to distribution function F
+
+* $E[X]$, $E[Y]$, $E[T]$ - the expectation of X, Y, T respectively
+
+
+
+# Generalised linear model
+
+The GLM, formulated by John Nelder & Robert Wedderburn [1], relates the mean of an outcome variable $\mathbf{Y}$ to predictor variables $\mathbf{X}$ via
+$$\,$$
+
+$$E(\mathbf{Y}|\mathbf{X})=g^{-1}(\mathbf{X}\mathbf{\beta})$$
+$$\,$$
+Specifically the GLM consists of 3 things:
+
+* $\mathbf{Y}\sim F$ where $F$ is an exponential family distribution with mean $\mathbf{\mu}$
+* a **linear predictor** $\mathbf{\eta}=\mathbf{X}\mathbf{\beta}$
+* a monotonic, differentiable **link** function g(), linking $\mathbf{\mu}$, $\mathbf{\eta}$: $g(\mathbf{\mu})=\mathbf{\eta}$
+
+
+# Generalised linear model
+
+Where
+
+$$\mathbf{Y}=(Y_1,\ldots,Y_n)^T$$
+$$\,$$
+$$\mathbf{X}=\left(
+\begin{align}
+1      & \; X_{11} & \;\ldots & \; X_{p1} \\
+\vdots & \;\vdots   & \;\vdots & \;\vdots  \\
+1      & \; X_{1n} & \;\ldots & \;X_{pn}
+\end{align}
+\right)$$
+$$\,$$
+$$\mathbf{\beta}=(\beta_0,\ldots,\beta_p)^T$$
+$$\,$$
+$$\mathbf{\epsilon}=(\epsilon_1\ldots\epsilon_n)^T$$
+
+$\mathbf{X}$ is called the **design matrix**.
+
+Dimensions: $\mathbf{Y}$ is $n\times1$, $\mathbf{X}$ is $n\times(p+1)$, $\mathbf{\beta}$ is $(p+1)\times1$, $\mathbf{\epsilon}$ is $x\times1$.
+
+
+# Generalised linear model
+
+:::::: {.columns}
+::: {.column width="50%"}
+![John Ashworth Nelder (public domain / Wikipedia)](images/nelder.jpg)
+:::
+
+::: {.column width="50%"}
+![Robert Wedderburn (public domain / Wikipedia)](images/wedderburn.jpg)
+:::
+::::::
+
+
+# Generalised linear model
+
+An important special case is the general linear model (covered in Session 1):
+
+* $g(x) = x$
+* $Y\sim\mathcal{N}(\eta,\sigma^2)$
+
+This can be written as:
+
+$$Y=\beta_0+\beta_1X_1+\ldots+X_p+\epsilon$$
+
+with $\epsilon\sim\mathcal{N}(0,\sigma^2)$
+
+A special case of this model: 2 categorical predictors only (two-way ANOVA).
+
+
+# Generalised linear model
+
+**Exercise:**
+
+$$\,$$
+
+Write in matrix notation:
+$$\,$$
+$$log(E(Y_i|X_i))=\beta_0+\beta_1X_i+\beta_2X_i^2+\beta_3log(X_i)\;\;i=1,\ldots,n$$
+
+# Generalised linear model
+
+The linear predictor is linear in the coefficients $\beta_i$.
+
+These are linear models:
+
+$$Y = \beta_0+\beta_1 X_1+\beta_2 X_1^2+\beta_3X_1X_2+\epsilon$$
+$$Y = \beta_0 e^{-X} + \epsilon$$
+$$Y = \beta_0+\beta_1 log(X) + \epsilon$$
+
+These are non-linear models:
+
+$$Y = \beta_0+\beta_1X^{\beta_2}+\epsilon$$
+$$Y = \frac{\beta_0}{1+(X/\beta_1)^2}+\epsilon$$
+$$Y=\begin{cases}
+ \beta_0 +\beta_1 X& \mbox{ if } x<x_0 \\
+ \beta_2 +\beta_3 X& \mbox{ otherwise}
+\end{cases}$$
+
+
+# Generalised linear model
+
+Suppose we now observe data $D=\{\mathbf{y}, \mathbf{x}\}$ consisting of $n$ observations for 1 response and $p$ predictors. We can compute the probability density of observing these data:
+
+$$L(D|\mathbf{\theta})=\prod_{i=1}^n f(y_i;\mu_i=\beta_0+\beta_1 x_{1i}+\ldots,\beta_p x_{pi},\mathbf{\theta}')$$
+where $\mathbf{\theta}=(\beta_0,\ldots,\beta_p,\mathbf{\theta}')$, and  $f(;\mu,\mathbf{\theta}')$ is the pdf of the exponential family distribution with mean $\mu$ and other parameters $\mathbf{\theta}'$.
+
+$$\,$$
+
+As before, the parameter values $\hat{\beta}_0,\hat{\beta}_1,\dots,\hat{\beta}_k,\hat{\mathbf{\theta}}'$ that maximise the likelihood $L(D|\mathbf{\theta})$ are known as the **maximum likelihood estimates**.
+
+
+# Generalised linear model
+
+As we saw, it can be shown that for the general linear model case, the ML estimates are equal to the LS estimates.
+
+In matrix and vector notation, the LS / ML estimates are given by:
+$$\,$$
+
+$$\hat{\mathbf{\beta}}=(\mathbf{x}^T\mathbf{x})^{-1}\mathbf{x}^T\mathbf{y}$$
+And we obtain an estimate of $\sigma^2$ through the MSE:
+$$\hat{\sigma}^2=\frac{\sum_i(\mathbf{y}-\mathbf{x}\mathbf{\hat{\beta}})^2}{n-2}$$
+
+In practice, for the generalised linear model with no identity link function and/or non-Gaussian errors, these are found by using iteratively reweighted least-squares (more later).
+
+
+# Generalised linear model
+
+**Exponential family distributions**
+
+A distribution with location parameter $\theta$ and scale parameter $\phi$ is said to be a member of the exponential familiy if its pdf $f(y|\theta,\phi)$ can be written in the form
+$$\,$$
+$$f(y|\theta,\phi)=exp\left(\frac{y\theta-b(\theta)}{a(\phi)}+c(y,\phi)\right)$$
+
+$\theta$ is called the **canonical parameter** of the distribution.
+
+Note that there are more general notation forms for the exponential family. The above is however a particularly useful form for deriving the estimation algorithm for GLMs.
+
+# Generalised linear model
+
+Example: the normal distribution is an exponential family distribution since
+$$f(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2}}exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$$
+$$\,$$
+$$=exp\left(\frac{y\mu-\mu^2/2}{\sigma^2}-\frac{y^2}{2\sigma^2}-\frac{1}{2}log(2\pi\sigma^2)\right)$$
+$$\,$$
+
+Setting $\theta=\mu$, $\phi=\sigma$, $a(\phi)=\sigma$, $b(\theta)=\mu^2/2$, $c(y,\phi)=-\frac{y^2}{2\sigma^2}-\frac{1}{2}log(2\pi\sigma^2)$, yields the exponential family form.
+
+# Generalised linear model
+
+**Exercise**
+$$\,$$
+
+Show that the binomial(n,p) is an exponential family distribution.
+
+# Generalised linear model
+
+Recap
+
+* Independent observations, true relation between response and predictor(s) is linear: **linear regression**.
+
+* Normal distribution of errors / residuals, continuous & categorical predictors, linear predictor is linear in parameters (not necessarily in the predictors): **general linear model**.
+
+* Link function, exponential-family distribution for errors / residuals: **generalised linear model**.
+
+
+# Generalised linear model - estimation
+
+A single algorithm can be derived for estimating the parameters $\mathbf{\beta}$ of a GLM. For a full derivation see [2], pp. 40-43.
+
+The likelihood of a GLM is given by the joint density for observations $\mathbf{y}=(y_1,\ldots,y_n)^T$, considered as a function of the parameters $\mathbf{\theta}=(\theta_1,\ldots,\theta_n)^T$ and $\phi$:
+
+$$L(\mathbf{\theta},\phi|\mathbf{y})=\prod_{i=1}^nexp\left(\frac{y_i\theta_i-b(\theta_i)}{a_i(\phi)}+c(y_i,\phi)\right)$$
+
+Where we were able to write the joint density as a product over the observations since we assume the $\{y_i\}$ to be realisations of independent and identically distributed random variables $\{Y_i\}$.
+
+
+# Generalised linear model - estimation
+
+As always, it will be more convenient to work with the log likelihood function:
+$$\,$$
+$$l(\mathbf{\theta},\phi|\mathbf{y})=\sum_i\left(\frac{y_i\theta_i-b(\theta_i)}{a_i(\phi)}+c(y_i,\phi)\right)$$
+
+# Generalised linear model - estimation
+$$\,$$
+
+As we did in the general linear model case, we turn the problem of maxising a likelihood to finding the roots of the partial derviatives of the log likelihood.
+
+$$\,$$
+
+Because solving these **score equations**, yields the parameter estimates, they are also called the **estimating equations**.
+
+
+# Generalised linear model - estimation
+
+To find the ML estimates, we need to solve the score equations:
+$$\,$$
+$$s(\beta_j)=\frac{\delta l}{\delta\beta_j}=0\;\;\;j=1,\ldots,p+1$$
+$$\,$$
+Using the chain rule, one can show that this leads to solving
+$$\sum_i \frac{y_i-\mu_i}{a_i(\phi)v(\mu_i)}\frac{x_{ji}}{g'(\mu_i)}$$
+$$\,$$
+where $\mu_i=g^{-1}(\eta_i)=g^{-1}(\sum_j\beta_jx_{ji})$ and $v(\mu_i)=b''(\theta_i)$.
+
+# Generalised linear model - estimation
+
+Usually, $a_i(\phi)=\phi/\alpha_i$ with $\alpha_i$ a weight.
+$$\,$$
+
+The score equations are usually solved using the iterative algorithm **Fisher's Method of Scoring**, derived from a Taylor expansion of $s(\mathbf{\beta})$.
+$$\,$$
+
+In the $(r+1)^{th}$ iteration, new estimates $\mathbf{\beta}^{(r+1)}$ are obtained from the previous estimates $\mathbf{\beta}^{(r)}$ via
+$$\,$$
+
+$$\mathbf{\beta}^{(r+1)}=\mathbf{\beta}^{(r)}-l''(\mathbf{\beta}^{(r)})^{-1}l'(\mathbf{\beta}^{(r)})$$
+
+# Generalised linear model - estimation
+
+It turns out that these updates can be written as the score equations for a weighted least squares regression:
+$$\,$$
+$$\mathbf{\beta}^{(r+1)}=(\mathbf{X}^T\mathbf{W}^{(r)}X)^{-1}\mathbf{X}^T\mathbf{W}^{(r)}\mathbf{z}^{(r)}$$
+$$\,$$
+
+where $\mathbf{W}^{(r)}=diag\left(w_i^{(r)}\right)$, $w_i^{(r)}=\alpha_i/\left(v\left(\mu_i^{(r)}\right)\left(g'\left(\mu_i^{(r)}\right)\right)^2\right)$, $z_i^{(r)}=\eta_i+\left(y_i-\mu_i^{(r)}\right)g'\left(\mu_i^{(r)}\right)$.
+
+
+# Generalised linear model - estimation
+
+This means the GLM parameter estimates can be found using an **iteratively weighted least squares** (IWLS) algorithm:
+$$\,$$
+
+1. Start with initial estimates $\mu_i^{(r)}$.
+
+2. Calculate working responses $z_i^{(r)}$ and working weights $w_i^{(r)}$.
+
+3. Calculate $\mathbf{\beta}^{(r)}$ by weighted least squares.
+
+4. Repeat 2. and 3. until convergence.
+
+
+# Generalised linear model
+
+How to choose a link function?
+$$\,$$
+
+It depends on the data and the question you wish to answer!
+$$\,$$
+
+However there are *canonical* link functions for different distributions. These are derived by choosing $g(.)$ such that $g(E(\mathbf{Y}|\mathbf{X}))=\theta$, the canonical parameter.
+
+E.g. for the normal distribution, we have shown that $\theta=\mu$ and we know that $E(\mathbf{Y}|\mathbf{X})=\mu$, hence the canonical link function for the normal distribution is the identity function: $g(\mu)=\mu$.
+
+
+# Generalised linear model
+
+**Data transformations** are often used to address violations of model assumptions, such as linearity of the relationship or non-constant variance. One can transform either the response variable $Y$ or the independent variables $X_1,\ldots,X_p$ or both.
+
+Here we *briefly* introduce two common tranformation methods. There are far more general methods for transforming both $Y$ and the predictors $X_1,\ldots,X_p$, such as *Alternating Conditional Expectation* (ACE), but this is beyond the scope of this lecture course and best considered within the framework of **Generalised Additive Models** (GAMs) which we will briefly introduce at the end of this module.
+
+1. Box-Cox transform
+
+2. Mosteller & Tukey's ladder of powers / bulging rule
+
+
+# Generalised linear model
+
+**The Box-Cox transform**.
+
+George Box and David Cox [3] introduced this algorithm for transforming the response variable $Y$. This predated the GLMs, so is typically used in the case of the general linear model, i.e. Gaussian distribution and identity link.
+
+The Box-Cox transform finds parameters $\lambda_1,\lambda_2$ so that
+$$\,$$
+
+$$
+Y^{(\lambda)}_{BC}=\begin{cases}
+\frac{(Y+\lambda_2)^{\lambda_1}-1}{\lambda_1} & \mbox{ if }\lambda_1\neq0 \\
+\mbox{ln}(Y+\lambda_2) & \mbox{ if }\lambda_1=0
+\end{cases}
+$$
+
+# Generalised linear model
+
+**The Box-Cox transform**.
+
+$\lambda_1,\lambda_2$ are estimated using the profile likelihood function.
+
+The Box-Cox transform assumes normality (in the case of the general linear model) in the transformed response variable.
+
+Also note that we require $Y>\lambda_2$.
+
+# Generalised linear model
+
+**The Mosteller-Tukey ladder of powers (bulging rule)**.
+
+This method allows to transform both the response $Y$ and the independent predictors $X_1,\ldots,X_p$.
+
+Note that transforming $X$ will change the curvature of the data without affecting the variance of $Y$, whereas transforming $Y$ will affect both the shape of the data and the variance of the response variable.
+
+For a general linear model, we will now fit
+
+$$Y^\kappa=\beta_0+\beta_1X^\gamma+\epsilon$$
+
+# Generalised linear model
+
+**The Mosteller-Tukey ladder of powers (bulging rule)**.
+
+Mosteller & Tukey [4] propose a visual aid to select appropriate power $\kappa, \gamma$ (next slide), but profile likelihood methods could be used as well to estimate optimal parameters.
+
+$$
+Z^{(\lambda)}_{MT}=\begin{cases}
+ Z^\lambda& \mbox{ if }\lambda\neq0 \\
+ \mbox{ln}(Z) & \mbox{ if }\lambda=0
+\end{cases}
+$$
+Note that $Z$ can be either the response variable or any of the predictors, with a different $\lambda$ parameter for each transformed variable. We require $Z>0$ if $\lambda\leq0$ though one could introduce shift parameters ($\lambda_2$) as in the Box-Cox transform.
+
+# Generalised linear model
+
+![The Mosteller & Tukey (1977) ladder of powers / bulging rule](MostellerTukey.png)
+
+# Generalised linear model
+
+We may face a choice where we can either use a link function or transform the response variable.
+
+In this case - what should you do?
+
+$$\,$$
+
+It will depend on what the purpose of developing the statistical model is in the first place, but usually using a link function rather than transforming the data is preferrable.
+
+$$\,$$
+
+The key difference is that by tranforming $Y$, you change the distribution of your response variable, whereas a link function operates relates the mean of $Y$ to the predictors and does not affect the distribution of your response variable.
+
+$$\,$$
+
+# Generalised linear model
+
+Example:
+
+Consider a log link or log transformation.
+
+In the case of a log transform, we model $log(Y)$:
+
+$$\,$$
+$$log(Y)=\beta_0+\beta_1X_1+\ldots+\beta_pX_p+\epsilon$$
+And so
+$$\,$$
+$$E(log(Y)|X_1,\ldots,X_p)=\beta_0+\beta_1X_1+\ldots+\beta_pX_p$$
+Since mean(log) $\neq$ log(mean) in general, we cannot relate this back to the original data scale.
+
+# Generalised linear model
+
+Example:
+
+Using a log link however, we model $Y$ directly, but relate the log of its mean to the predictors:
+$$\,$$
+$$log(E(Y|X_1,\ldots,X_p))=\beta_0+\beta_1X_1+\ldots+\beta_pX_p$$
+$$\,$$
+And we can calculate the predicted average response of Y:
+$$\,$$
+$$E(Y|X_1,\ldots,X_p)=e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}$$
+
+# References
+
+[1] Nelder, J. and Wedderburn, R. (1972). "Generalized Linear Models". Journal of the Royal Statistical Society. Series A. 135 (3): 370-384. doi:10.2307/2344614 
+
+[2] McCullagh, P. and Nelder, J.A. (1989). "Generalized Linear Models". $2^{nd}$ ed. Chapman & Hall / CRC.
+
+[3] Box, G.E.P. and Cox, D.R. (1964). "An analysis of transformations". Journal of the Royal Statistical Society, Series B. 26 (2): 211-252. JSTOR 2984418
+
+[4] Mosteller, F. and Tukey, J.W. (1977). "Data Analysis and Regression", p. 588, Addison-Wesley.
+
+#
+
+$$\,$$ $$\,$$
+
+[end of ST6103 GLM Session 2]
