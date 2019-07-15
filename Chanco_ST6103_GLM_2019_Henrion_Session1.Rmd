@@ -291,7 +291,7 @@ $$\,$$
 
 Exercise:
 
-Prove that $\hat{\beta}_0$ and $\hat{\beta_1}$ are the OLS solution.
+Prove that $\hat{\beta}_0$ and $\hat{\beta}_1$ are the OLS solution.
 
 # Linear model
 
@@ -360,7 +360,7 @@ QED
 For calculating by hand, the formulas most useful are
 $$\,$$
 
-$$\hat{\beta}_1 = \frac{\sum_ix_iy_i-n\bar{x}\bar{y}}{\sum_ix_i^2-n\bar{x}^2}$$
+$$\hat{\beta}_1 = \frac{\sum_ix_iy_i-n\bar{x}\,\bar{y}}{\sum_ix_i^2-n\bar{x}^2}$$
 $$\,$$
 $$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}$$
 
@@ -417,8 +417,11 @@ lines(xx,yy,col="steelblue",lwd=2.5)
 Parameter interpretation:
 $$\,$$
 
-* $\hat{\beta}_0$ is the estimated *intercept* of the fitted regression line
-* $\hat{\beta}_1$ is the estimated *slope* of the fitted regression line
+* $\hat{\beta}_0$ is the estimated *intercept* of the fitted regression line; it is the value predicted for $Y$ when $X=0$
+
+$$\,$$
+
+* $\hat{\beta}_1$ is the estimated *slope* of the fitted regression line; it gives by how much $Y$ changes, on average, for every increase in $X$ by 1
 
 
 # Linear model
@@ -574,7 +577,7 @@ $$\,$$
 
 Note the model is *linear* in the parameters $\beta_0, \beta_1, \ldots, \beta_p$.
 
-E.g. $Y=\beta_0+\beta_1X+\beta_2X^2+\epsilon$ is a general linear model but $Y=\beta_0+\beta_1X+\beta_1^2X^2+\epsilon$ is not.
+E.g. $Y=\beta_0+\beta_1X+\beta_2X^2+\epsilon$ is a general linear model but $Y=\beta_0X^{\beta_1}+\epsilon$ is not.
 
 
 # General linear model
@@ -607,7 +610,12 @@ where $\epsilon\sim\mathcal{N}(\mathbf{0},\sigma^2\mathbf{I})$.
 $$\,$$
 
 This can also be written as:
-$$E\left(\mathbf{Y}|\mathbf{X}\right)=\mathbf{X}\mathbf{\beta}$$
+$$
+\begin{cases}
+E\left(\mathbf{Y}|\mathbf{X}\right)=\mathbf{X}\mathbf{\beta} \\
+Var(\mathbf{Y}-\mathbf{X}\mathbf{\beta})=\sigma^2
+\end{cases}
+$$
 
 # General linear model
 
