@@ -237,7 +237,7 @@ $$\,$$
 
 In other words, for a dependent variable $Y$ and an independent variable $X$ we hypothesise there is a model
 
-$$Y=\beta_0+\beta_i X +\epsilon$$
+$$Y=\beta_0+\beta_1 X +\epsilon$$
 
 where $\epsilon$ is a random variable.
 
@@ -291,7 +291,7 @@ $$\,$$
 
 For calculating this by hand, it is usally easier to write
 
-$S_{xy}=\sum_i x_iy_i-n\bar{x}\bar{y}$
+$S_{xy}=\sum_i x_iy_i-n\bar{x}\,\bar{y}$
 $SS_x=\sum_ix_i^2-n\bar{x}^2$
 
 $$\,$$
