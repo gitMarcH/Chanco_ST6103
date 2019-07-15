@@ -36,6 +36,13 @@ require(gridExtra)
 
 ## Session 1: Linear Model
 
+$$\,$$
+
+The definite reference for GLMs is:
+
+McCullagh, P. and Nelder, J.A. (1989). "Generalized Linear Models". $2^{nd}$ ed. Chapman & Hall / CRC.
+
+
 # Notation
 
 * $X, Y$ - random variables (here: X = predictor, Y = response)
