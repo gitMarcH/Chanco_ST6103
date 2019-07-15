@@ -322,7 +322,7 @@ From (1) we get:
 
 $\text{ }$ $\sum_i (-2)(y_i-\hat{\beta}_0-\hat{\beta}_1 x_i) = 0$
  
-$\text{ }$ $\;\;\;\Rightarrow \sum_i y_i -n\hat{\beta_0}-\hat{\beta}_1\sum_ix_i = 0$
+$\text{ }$ $\;\;\;\Rightarrow \sum_i y_i -n\hat{\beta}_0-\hat{\beta}_1\sum_ix_i = 0$
  
 $\text{ }$ $\;\;\;\Rightarrow \bar{y} -\hat{\beta_0}-\hat{\beta}_1\bar{x}=0$
  
@@ -443,7 +443,7 @@ $$\,$$
 The **coefficient of determination** $R^2$ gives the proportion of the variation that is explained by the regression model.
 
 $$R^2=\frac{RSS}{TSS}=\frac{S_{xy}^2}{SS_x SS_y}$$
-$R^2$ is also the squared sample correlation coefficient.
+In the case of a single predictor $X$, $R^2$ is also the squared sample correlation coefficient $\rho(\mathbf{y},\mathbf{x})$ between the observed $\mathbf{y}$ and $\mathbf{x}$.
 
 
 # Linear model
