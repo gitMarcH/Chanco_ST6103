@@ -63,6 +63,13 @@ Load the `mtcars` dataset by typing `data(mtcars)`. Get information about this d
 
 Discuss (and explore!) your model results. What other variables would you consider including into the models?
 
+# Exercise 4
+
+$$\,$$
+Still using `mtcars`, compare the miles per gallon ratings for automatic and manual cars using both ANOVA and a general linear model.
+
+
+
 # 
 
 [end of ST6103 GLM Practical 2]
