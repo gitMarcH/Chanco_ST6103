@@ -614,7 +614,7 @@ Then we can write the general linear model as
 $$\,$$
 
 $$\mathbf{Y}=\mathbf{X}\mathbf{\beta}+\mathbf{\epsilon}$$
-where $\epsilon\sim\mathcal{N}(\mathbf{0},\sigma^2\mathbf{I})$.
+where $\mathbf{\epsilon}\sim\mathcal{N}(\mathbf{0},\sigma^2\mathbf{I})$.
 $$\,$$
 
 This can also be written as:
@@ -627,7 +627,7 @@ $$
 $$\,$$
 $\mathbf{X}$ is called the **design matrix**.
 
-Dimensions: $\mathbf{Y}$ is $n\times1$, $\mathbf{X}$ is $n\times(p+1)$, $\mathbf{\beta}$ is $(p+1)\times1$, $\mathbf{\epsilon}$ is $x\times1$.
+Dimensions: $\mathbf{Y}$ is $n\times1$, $\mathbf{X}$ is $n\times(p+1)$, $\mathbf{\beta}$ is $(p+1)\times1$, $\mathbf{\epsilon}$ is $n\times1$.
 
 
 # General linear model
@@ -636,7 +636,7 @@ For observed data $\mathbf{y}$ and $\mathbf{x}$, the ML / LS estimates are given
 $$\,$$
 $$\hat{\mathbf{\beta}}=\left(\mathbf{x}^T\mathbf{x}\right)^{-1}\mathbf{x}^T\mathbf{y}$$
 
-This requires $\mathbf{x}^T\mathbf{x}$ to be invertible.
+This requires $\mathbf{x}^T\mathbf{x}$ to be invertible (though general inverse could be used).
 
 
 # General linear model

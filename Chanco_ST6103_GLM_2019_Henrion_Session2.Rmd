@@ -83,7 +83,7 @@ $$\mathbf{\epsilon}=(\epsilon_1\ldots\epsilon_n)^T$$
 
 $\mathbf{X}$ is called the **design matrix**.
 
-Dimensions: $\mathbf{Y}$ is $n\times1$, $\mathbf{X}$ is $n\times(p+1)$, $\mathbf{\beta}$ is $(p+1)\times1$, $\mathbf{\epsilon}$ is $x\times1$.
+Dimensions: $\mathbf{Y}$ is $n\times1$, $\mathbf{X}$ is $n\times(p+1)$, $\mathbf{\beta}$ is $(p+1)\times1$, $\mathbf{\epsilon}$ is $n\times1$.
 
 
 # Generalised linear model
@@ -193,12 +193,6 @@ $$\,$$
 
 Setting $\theta=\mu$, $\phi=\sigma$, $a(\phi)=\sigma$, $b(\theta)=\mu^2/2$, $c(y,\phi)=-\frac{y^2}{2\sigma^2}-\frac{1}{2}log(2\pi\sigma^2)$, yields the exponential family form.
 
-# Generalised linear model
-
-**Exercise**
-$$\,$$
-
-Show that the binomial(n,p) is an exponential family distribution.
 
 # Generalised linear model
 
@@ -211,81 +205,6 @@ Recap
 * Link function, exponential-family distribution for errors / residuals: **generalised linear model**.
 
 
-# Generalised linear model - estimation
-
-A single algorithm can be derived for estimating the parameters $\mathbf{\beta}$ of a GLM. For a full derivation see [2], pp. 40-43.
-
-The likelihood of a GLM is given by the joint density for observations $\mathbf{y}=(y_1,\ldots,y_n)^T$, considered as a function of the parameters $\mathbf{\theta}=(\theta_1,\ldots,\theta_n)^T$ and $\phi$:
-
-$$L(\mathbf{\theta},\phi|\mathbf{y})=\prod_{i=1}^nexp\left(\frac{y_i\theta_i-b(\theta_i)}{a_i(\phi)}+c(y_i,\phi)\right)$$
-
-Where we were able to write the joint density as a product over the observations since we assume the $\{y_i\}$ to be realisations of independent and identically distributed random variables $\{Y_i\}$.
-
-
-# Generalised linear model - estimation
-
-As always, it will be more convenient to work with the log likelihood function:
-$$\,$$
-$$l(\mathbf{\theta},\phi|\mathbf{y})=\sum_i\left(\frac{y_i\theta_i-b(\theta_i)}{a_i(\phi)}+c(y_i,\phi)\right)$$
-
-# Generalised linear model - estimation
-$$\,$$
-
-As we did in the general linear model case, we turn the problem of maxising a likelihood to finding the roots of the partial derviatives of the log likelihood.
-
-$$\,$$
-
-Because solving these **score equations**, yields the parameter estimates, they are also called the **estimating equations**.
-
-
-# Generalised linear model - estimation
-
-To find the ML estimates, we need to solve the score equations:
-$$\,$$
-$$s(\beta_j)=\frac{\delta l}{\delta\beta_j}=0\;\;\;j=1,\ldots,p+1$$
-$$\,$$
-Using the chain rule, one can show that this leads to solving
-$$\sum_i \frac{y_i-\mu_i}{a_i(\phi)v(\mu_i)}\frac{x_{ji}}{g'(\mu_i)}$$
-$$\,$$
-where $\mu_i=g^{-1}(\eta_i)=g^{-1}(\sum_j\beta_jx_{ji})$ and $v(\mu_i)=b''(\theta_i)$.
-
-# Generalised linear model - estimation
-
-Usually, $a_i(\phi)=\phi/\alpha_i$ with $\alpha_i$ a weight.
-$$\,$$
-
-The score equations are usually solved using the iterative algorithm **Fisher's Method of Scoring**, derived from a Taylor expansion of $s(\mathbf{\beta})$.
-$$\,$$
-
-In the $(r+1)^{th}$ iteration, new estimates $\mathbf{\beta}^{(r+1)}$ are obtained from the previous estimates $\mathbf{\beta}^{(r)}$ via
-$$\,$$
-
-$$\mathbf{\beta}^{(r+1)}=\mathbf{\beta}^{(r)}-l''(\mathbf{\beta}^{(r)})^{-1}l'(\mathbf{\beta}^{(r)})$$
-
-# Generalised linear model - estimation
-
-It turns out that these updates can be written as the score equations for a weighted least squares regression:
-$$\,$$
-$$\mathbf{\beta}^{(r+1)}=(\mathbf{X}^T\mathbf{W}^{(r)}X)^{-1}\mathbf{X}^T\mathbf{W}^{(r)}\mathbf{z}^{(r)}$$
-$$\,$$
-
-where $\mathbf{W}^{(r)}=diag\left(w_i^{(r)}\right)$, $w_i^{(r)}=\alpha_i/\left(v\left(\mu_i^{(r)}\right)\left(g'\left(\mu_i^{(r)}\right)\right)^2\right)$, $z_i^{(r)}=\eta_i+\left(y_i-\mu_i^{(r)}\right)g'\left(\mu_i^{(r)}\right)$.
-
-
-# Generalised linear model - estimation
-
-This means the GLM parameter estimates can be found using an **iteratively weighted least squares** (IWLS) algorithm:
-$$\,$$
-
-1. Start with initial estimates $\mu_i^{(r)}$.
-
-2. Calculate working responses $z_i^{(r)}$ and working weights $w_i^{(r)}$.
-
-3. Calculate $\mathbf{\beta}^{(r)}$ by weighted least squares.
-
-4. Repeat 2. and 3. until convergence.
-
-
 # Generalised linear model
 
 How to choose a link function?
@@ -294,7 +213,7 @@ $$\,$$
 It depends on the data and the question you wish to answer!
 $$\,$$
 
-However there are *canonical* link functions for different distributions. These are derived by choosing $g(.)$ such that $g(E(\mathbf{Y}|\mathbf{X}))=\theta$, the canonical parameter.
+However there are **canonical link** functions for different distributions. These are derived by choosing $g(.)$ such that $g(E(\mathbf{Y}|\mathbf{X}))=\theta$, the canonical parameter.
 
 E.g. for the normal distribution, we have shown that $\theta=\mu$ and we know that $E(\mathbf{Y}|\mathbf{X})=\mu$, hence the canonical link function for the normal distribution is the identity function: $g(\mu)=\mu$.
 
@@ -303,7 +222,7 @@ E.g. for the normal distribution, we have shown that $\theta=\mu$ and we know th
 
 **Data transformations** are often used to address violations of model assumptions, such as linearity of the relationship or non-constant variance. One can transform either the response variable $Y$ or the independent variables $X_1,\ldots,X_p$ or both.
 
-Here we *briefly* introduce two common tranformation methods. There are far more general methods for transforming both $Y$ and the predictors $X_1,\ldots,X_p$, such as *Alternating Conditional Expectation* (ACE), but this is beyond the scope of this lecture course and best considered within the framework of **Generalised Additive Models** (GAMs) which we will briefly introduce at the end of this module.
+Here we *briefly* introduce two common tranformation methods. There are far more general methods for transforming both $Y$ and the predictors $X_1,\ldots,X_p$, such as *Alternating Conditional Expectation* (ACE), but this is beyond the scope of this lecture course and best considered within the framework of *Generalised Additive Models* (GAMs) which we will briefly introduce at the end of this module.
 
 1. Box-Cox transform
 
@@ -376,9 +295,7 @@ $$\,$$
 
 It will depend on what the purpose of developing the statistical model is in the first place, but usually using a link function rather than transforming the data is preferrable.
 
-$$\,$$
-
-The key difference is that by tranforming $Y$, you change the distribution of your response variable, whereas a link function operates relates the mean of $Y$ to the predictors and does not affect the distribution of your response variable.
+The key difference is that by transforming $Y$, you affect both linearity and variance of the response: you change the distribution of your response variable, whereas a link function relates the mean of $Y$ to the predictors and does not affect the distribution of your response variable.
 
 $$\,$$
 
@@ -386,16 +303,14 @@ $$\,$$
 
 Example:
 
-Consider a log link or log transformation.
+A log transform is often used to improve linearity and to remedy variance increasing with the mean.
 
 In the case of a log transform, we model $log(Y)$:
 
-$$\,$$
 $$log(Y)=\beta_0+\beta_1X_1+\ldots+\beta_pX_p+\epsilon$$
 And so
-$$\,$$
 $$E(log(Y)|X_1,\ldots,X_p)=\beta_0+\beta_1X_1+\ldots+\beta_pX_p$$
-Since mean(log) $\neq$ log(mean) in general, we cannot relate this back to the original data scale.
+Since mean(log) $\neq$ log(mean) in general, we cannot relate this back to the original data scale - an issue if some of our predictors are categorical and we wish to say something about subgroups.
 
 # Generalised linear model
 
@@ -408,6 +323,135 @@ $$\,$$
 And we can calculate the predicted average response of Y:
 $$\,$$
 $$E(Y|X_1,\ldots,X_p)=e^{\beta_0+\beta_1X_1+\ldots+\beta_pX_p}$$
+
+
+# Generalised linear model
+
+**Exercise**
+$$\,$$
+
+Show that the binomial(m,$\pi$) is an exponential family distribution and that the canonical link is given by the logit function: $g(\pi)=log\left(\frac{\pi}{1-\pi}\right)$.
+
+# Generalised linear model
+
+**Solution**
+
+If $Y\sim\mbox{Bin}(m,\pi)$, then its pdf is given by
+
+$$f_Y(y)=\binom{m}{y}\pi^y(1-\pi)^{1-y}=\binom{m}{y}\left(\frac{\pi}{1-\pi}\right)^y(1-\pi)^m$$
+$$\,$$
+Writing this inside $exp()$:
+$$f_Y(y)=exp\left(\log\binom{m}{y}+x\log\left(\frac{\pi}{1-\pi}\right)+m\log(1-\pi)\right)=exp\left(\frac{y\log\left(\frac{\pi}{1-\pi}\right)-(-m\log(1-\pi))}{1}+\log\binom{m}{y}\right)$$
+
+# Generalised linear model
+
+**Solution**
+
+Setting 
+$$\begin{cases}
+\theta &=x\log\left(\frac{p}{1-p}\right) \\
+a(\phi) &= 1 \\
+b(\theta) &= -m\log(1-p) \\
+c(y,\phi) &= \log\binom{m}{y}
+\end{cases}
+$$
+$$\,$$
+shows that this is an exponential family distribution.
+
+
+# Generalised linear model
+
+**Solution**
+
+When  $Y|\mathbf{X}\sim\mbox{Bin}(m,\pi)$, we usually model $Y/m$:
+$$g(E[Y/m|\mathbf{X}])=\mathbf{X}\mathbf{\beta}$$
+If $T\sim\mbox{Bin}(m,\pi)$, then $E(T)=m\pi$ and so $E(T/m)=\pi$.
+
+Hence, in our case: $g(E[Y/m|\mathbf{X}])=\pi$ and for the canonical link function we need to find $g()$ so that $g(E[Y/m|\mathbf{X}])=\theta=\log\left(\frac{\pi}{1-\pi}\right)$.
+
+Hence $g(\pi)=\log\left(\frac{\pi}{1-\pi}\right)$ is the canonical link function.
+
+In other words, for the binomial distribution, the canonical link function is the logit function.
+
+
+# Generalised linear model - estimation
+
+A single algorithm can be derived for estimating the parameters $\mathbf{\beta}$ of a GLM. For a full derivation see [2], pp. 40-43.
+
+The likelihood of a GLM is given by the joint density for observations $\mathbf{y}=(y_1,\ldots,y_n)^T$, considered as a function of the parameters $\mathbf{\theta}=(\theta_1,\ldots,\theta_n)^T$ and $\phi$:
+
+$$L(\mathbf{\theta},\phi|\mathbf{y})=\prod_{i=1}^nexp\left(\frac{y_i\theta_i-b(\theta_i)}{a_i(\phi)}+c(y_i,\phi)\right)$$
+
+Where we were able to write the joint density as a product over the observations since we assume the $\{y_i\}$ to be realisations of independent and identically distributed random variables $\{Y_i\}$.
+
+
+# Generalised linear model - estimation
+
+As always, it will be more convenient to work with the log likelihood function:
+$$\,$$
+$$l(\mathbf{\theta},\phi|\mathbf{y})=\sum_i\left(\frac{y_i\theta_i-b(\theta_i)}{a_i(\phi)}+c(y_i,\phi)\right)$$
+
+# Generalised linear model - estimation
+$$\,$$
+
+As we did in the general linear model case, we turn the problem of maxising a likelihood to finding the roots of the partial derviatives of the log likelihood.
+
+$$\,$$
+
+Because solving these **score equations**, yields the parameter estimates, they are also called the **estimating equations**.
+
+
+# Generalised linear model - estimation
+
+To find the ML estimates, we need to solve the score equations:
+$$\,$$
+$$s(\beta_j)=\frac{\delta l}{\delta\beta_j}=0\;\;\;j=1,\ldots,p+1$$
+$$\,$$
+Using the chain rule, one can show that this leads to solving
+$$\sum_i \frac{y_i-\mu_i}{a_i(\phi)v(\mu_i)}\frac{x_{ji}}{g'(\mu_i)}$$
+$$\,$$
+where $\mu_i=g^{-1}(\eta_i)=g^{-1}(\sum_j\beta_jx_{ji})$ and $v(\mu_i)=b''(\theta_i)$.
+
+# Generalised linear model - estimation
+
+Usually, $a_i(\phi)=\phi/\alpha_i$ with $\alpha_i$ a weight.
+$$\,$$
+
+The score equations are usually solved using the iterative **Fisher scoring** algorithm, derived from a Taylor series expansion of $s(\mathbf{\beta})$.
+$$\,$$
+
+In the $(r+1)^{th}$ iteration, new estimates $\mathbf{\beta}^{(r+1)}$ are obtained from the previous estimates $\mathbf{\beta}^{(r)}$ via
+$$\,$$
+
+$$\mathbf{\beta}^{(r+1)}=\mathbf{\beta}^{(r)}-l''(\mathbf{\beta}^{(r)})^{-1}l'(\mathbf{\beta}^{(r)})$$
+
+# Generalised linear model - estimation
+
+It turns out that these updates can be written as the score equations for a weighted least squares regression:
+$$\,$$
+$$\mathbf{\beta}^{(r+1)}=(\mathbf{X}^T\mathbf{W}^{(r)}\mathbf{X})^{-1}\mathbf{X}^T\mathbf{W}^{(r)}\mathbf{z}^{(r)}$$
+$$\,$$
+
+where $\mathbf{W}^{(r)}=diag\left(w_i^{(r)}\right)$, $w_i^{(r)}=\alpha_i/\left(v\left(\mu_i^{(r)}\right)\left(g'\left(\mu_i^{(r)}\right)\right)^2\right)$, $z_i^{(r)}=\eta_i+\left(y_i-\mu_i^{(r)}\right)g'\left(\mu_i^{(r)}\right)$.
+
+
+# Generalised linear model - estimation
+
+This means the GLM parameter estimates can be found using an **iteratively weighted least squares** (IWLS) algorithm:
+
+1. Start with initial estimates $\mu_i^{(r)}$.
+
+2. Calculate working responses $z_i^{(r)}$ and working weights $w_i^{(r)}$.
+
+3. Calculate $\mathbf{\beta}^{(r)}$ by weighted least squares.
+
+4. Repeat 2. and 3. until convergence.
+
+For models with canonical link functions (see later), this is the **Newton-Raphson method**. For Gaussian errors with identity link, the Taylor series expansion is exact and the algorithm finishes in 1 iteration.
+
+The IWLS algorithm for GLMs is so powerful because it works for the entire family of exponential distributions.
+
+
 
 # References
 
