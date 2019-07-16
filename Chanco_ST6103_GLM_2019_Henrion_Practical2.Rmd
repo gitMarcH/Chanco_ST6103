@@ -22,31 +22,6 @@ require(gridExtra)
 
 ## Practical 2: Generalised Linear Models using R
 
-# Notation
-
-* $X, Y$ - random variables (here: X = predictor, Y = response)
-
-* $x, y$ - measured / observed values
-
-* $\epsilon$ - random variable (here: error / residual)
-
-* $\mathbf{\theta}$ - a vector of parameters
-
-* $\bar{X}$, $\bar{Y}$ - sample mean estimators for X, Y
-
-* $\bar{x}$, $\bar{y}$ - sample mean estimates of X, Y
-
-* $\hat{T}$, $\hat{t}$ - given a statistic T, estimator and estimate of T
-
-* $P(A)$ - probability of an event A occuring
-
-* $f_X(.)$, $f_Y(.)$ - distribution mass / density functions of X, Y
-
-* $X\sim F$ - X distributed according to distribution function F
-
-* $E[X]$, $E[Y]$, $E[T]$ - the expectation of X, Y, T respectively
-
-
 # Exercise 1
 
 Download the file `byHandExample1.csv` from the GitHub repository.
@@ -80,12 +55,13 @@ Then refit the same model from yesterday using `R`.
 
 Load the `mtcars` dataset by typing `data(mtcars)`. Get information about this dataset by typing `?mtcars`.
 
-* Explore this dataset: produce histograms for the different variables and produce pairwise scatterplots. 
+* Explore this dataset: produce histograms & scatterplots. 
 
-* You want to find out which variables are most important to achieve a high miles per gallon rating in a car. Use `R` to build a GLM model to do this.
+* You want to find out which variables are most important to achieve a high miles per gallon rating in a car. Use `R` to build a GLM model regressing the `mpg` variables on `hp` (horsepower), `disp` (displacement),`cyl` (cylinders) and `wt` (weight). Interpret the model output.
 
-* Buid a model that would allow you to predict whether a car has manual or automatic transmission.
+* Buid a model that would allow you to predict whether a car has manual or automatic transmission. Specifically, regress `am` (transmission) on `hp` (horse power) and `wt` (weight). Be careful to specify a binomial distribution with logit link! What about a log link? Identity link?
 
+Discuss (and explore!) your model results. What other variables would you consider including into the models?
 
 # 
 
