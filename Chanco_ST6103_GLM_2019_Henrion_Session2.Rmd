@@ -191,7 +191,7 @@ $$\,$$
 $$=exp\left(\frac{y\mu-\mu^2/2}{\sigma^2}-\frac{y^2}{2\sigma^2}-\frac{1}{2}log(2\pi\sigma^2)\right)$$
 $$\,$$
 
-Setting $\theta=\mu$, $\phi=\sigma$, $a(\phi)=\sigma$, $b(\theta)=\mu^2/2$, $c(y,\phi)=-\frac{y^2}{2\sigma^2}-\frac{1}{2}log(2\pi\sigma^2)$, yields the exponential family form.
+Setting $\theta=\mu$, $\phi=\sigma$, $a(\phi)=\sigma^2$, $b(\theta)=\mu^2/2$, $c(y,\phi)=-\frac{y^2}{2\sigma^2}-\frac{1}{2}log(2\pi\sigma^2)$, yields the exponential family form.
 
 
 # Generalised linear model
@@ -408,13 +408,13 @@ $$\,$$
 $$s(\beta_j)=\frac{\delta l}{\delta\beta_j}=0\;\;\;j=1,\ldots,p+1$$
 $$\,$$
 Using the chain rule, one can show that this leads to solving
-$$\sum_i \frac{y_i-\mu_i}{a_i(\phi)v(\mu_i)}\frac{x_{ji}}{g'(\mu_i)}$$
+$$\sum_i \frac{y_i-\mu_i}{a_i(\phi)V(\mu_i)}\frac{x_{ji}}{g'(\mu_i)}$$
 $$\,$$
-where $\mu_i=g^{-1}(\eta_i)=g^{-1}(\sum_j\beta_jx_{ji})$ and $v(\mu_i)=b''(\theta_i)$.
+where $\mu_i=g^{-1}(\eta_i)=g^{-1}(\sum_j\beta_jx_{ji})$ and $V(\mu_i)=b''(\theta_i)$.
 
 # Generalised linear model - estimation
 
-Usually, $a_i(\phi)=\phi/\alpha_i$ with $\alpha_i$ a weight.
+Usually, $a_i(\phi)=\phi/\alpha_i$ with $\alpha_i$ a weight (e.g. for $Y_i\sim$Bin($m_i$,$\pi$_i), $\phi=1$, $\alpha_i=m_i$).
 $$\,$$
 
 The score equations are usually solved using the iterative **Fisher scoring** algorithm, derived from a Taylor series expansion of $s(\mathbf{\beta})$.
@@ -432,7 +432,7 @@ $$\,$$
 $$\mathbf{\beta}^{(r+1)}=(\mathbf{X}^T\mathbf{W}^{(r)}\mathbf{X})^{-1}\mathbf{X}^T\mathbf{W}^{(r)}\mathbf{z}^{(r)}$$
 $$\,$$
 
-where $\mathbf{W}^{(r)}=diag\left(w_i^{(r)}\right)$, $w_i^{(r)}=\alpha_i/\left(v\left(\mu_i^{(r)}\right)\left(g'\left(\mu_i^{(r)}\right)\right)^2\right)$, $z_i^{(r)}=\eta_i+\left(y_i-\mu_i^{(r)}\right)g'\left(\mu_i^{(r)}\right)$.
+where $\mathbf{W}^{(r)}=diag\left(w_i^{(r)}\right)$, $w_i^{(r)}=\alpha_i/\left(V\left(\mu_i^{(r)}\right)\left(g'\left(\mu_i^{(r)}\right)\right)^2\right)$, $z_i^{(r)}=\eta_i+\left(y_i-\mu_i^{(r)}\right)g'\left(\mu_i^{(r)}\right)$.
 
 
 # Generalised linear model - estimation
