@@ -1,0 +1,68 @@
+---
+title: "ST6103 - GLM - Practical 3"
+author: "Marc Henrion"
+date: "17 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 3: Generalised Linear Models
+
+# Exercise 1
+
+Show that the Poisson distribution with probability mass function $f_Y(k)=\frac{\lambda^ke^{-\lambda}}{k!}$ belongs to the exponential family and derive its canonical link function.
+
+# Exercise 2
+
+Show that the gamma distribution with probability mass function $f_Y(y)=\frac{\beta^\alpha}{\Gamma(\alpha)}y^{\alpha-1}e^{-\beta y}$ belongs to the exponential family and derive its canonical link function.
+Recall that the mean of the gamme distribution $E[Y]=\alpha/\beta$.
+
+# Exercise 3
+
+State the model assumptions for
+
+* Simple linear regression
+
+* General linear model
+
+* Generalised linear model
+
+
+# Exercise 4
+
+Load the `warpbreaks` dataset by typing `data(warpbreaks)` in `R`.
+
+We are interested in investigating the relationship between the number of breaks in woolwarp with wool type and tension.
+
+* Plot a histogram of the data. Compare to the Poisson distribution with parameter equal to the average number of breaks.
+
+* Fit a Poisson regression model for `breaks` against `wool`.
+
+* Fit a Poisson regression model for `breaks` against `tension`.
+
+* Fit a Poisson regression model for `breaks` against both `wool` and `tension`.
+
+* Fit a Poisson regression model for `breaks` against both `wool` and `tension` and their interaction terms.
+
+* Plot fitted number of breaks against observed breaks.
+
+Discuss your results! What predicts `breaks`? Which is the best model?
+
+
+# 
+
+[end of ST6103 GLM Practical 3]
