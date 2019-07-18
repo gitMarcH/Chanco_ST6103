@@ -1,0 +1,319 @@
+---
+title: "ST6103 - GLM - Session 4"
+author: "Marc Henrion"
+date: "18 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Session 4: Generalised Linear Model - continued
+
+
+# Notation
+
+* $X, Y$ - random variables (here: X = predictor, Y = response)
+
+* $x, y$ - measured / observed values
+
+* $\epsilon$ - random variable (here: error / residual)
+
+* $\mathbf{\theta}$ - a vector of parameters
+
+* $\bar{X}$, $\bar{Y}$ - sample mean estimators for X, Y
+
+* $\bar{x}$, $\bar{y}$ - sample mean estimates of X, Y
+
+* $\hat{T}$, $\hat{t}$ - given a statistic T, estimator and estimate of T
+
+* $P(A)$ - probability of an event A occuring
+
+* $f_X(.)$, $f_Y(.)$ - distribution mass / density functions of X, Y
+
+* $X\sim F$ - X distributed according to distribution function F
+
+* $E[X]$, $E[Y]$, $E[T]$ - the expectation of X, Y, T respectively
+
+
+# Generalised linear model: confidence bands
+
+Once we have fitted a GLM, we can predict new values.
+
+Predicting response values for predictor values well outside the ones used to fit the model should be avoided!
+
+Prediction uses estimates. Can we derive prediction confidence intervals? What we predict in a GLM is the *mean* response. We can actually consider 2 types of prediction confidence intervals:
+
+a. for the mean response
+
+b. for a new observation
+
+The first one takes only the uncertainty of the model fit into account, the second one also takes the variability of the response values into account.
+
+
+# Generalised linear model: confidence bands
+
+We have seen that the estimators $\hat{\beta}$ are asympotically normally distributed. This implies that, on the link function scale (i.e. for the linear predictor $\eta$), we can construct confidence intervals using the asympotic normal distribution, then back transform to the scale of the response variable.
+
+For a 95% confidence interval for the mean response:
+
+$$\hat{\eta}\pm1.96\times SE(\hat{\eta})$$
+And then, backtransforming
+$$\hat{y}_{low}=g^{-1}(\hat{\eta}_{low})$$
+$$\hat{y}_{high}=g^{-1}(\hat{\eta}_{high})$$
+
+# Generalised linear model: confidence bands
+
+Example:
+
+```{r}
+modPois<-glm(dist~speed,data=cars,family=poisson)
+newX<-data.frame(speed=seq(1,30,length=500))
+pred<-predict(modPois,type="link",newdata=newX, se.fit=T)
+predFit<-exp(pred$fit)
+predLow<-exp(pred$fit-qnorm(0.975)*pred$se.fit)
+predHigh<-exp(pred$fit+qnorm(0.975)*pred$se.fit)
+
+plot(dist~speed,data=cars,cex=2,xlim=c(1,30),ylim=c(0,170))
+lines(newX$speed,predFit,lwd=2,col="steelblue")
+polygon(x=c(newX$speed,newX$speed[nrow(newX):1]),y=c(predLow,predHigh[nrow(newX):1]),col=rgb(70,130,180,alpha=100,maxColorValue=255),border=NA)
+```
+
+
+# Generalised linear model: confidence bands
+
+Confidence intervals for new observations are more tricky as we would need an estimate of the variability of the response variable on the link scale.
+
+For some models, we cannot derive analytical solutions (e.g. Poisson) and for others (e.g. binomial), it would make little sense.
+
+We can do this for general linear models however.
+
+# Generalised linear model: confidence bands
+
+For Gaussian distribution with identity link GLMs, we can even derive exact prediction confidence intervals - for both the mean response and new observations.
+
+Mean response confidence interval for a model with $p$ predictors:
+
+$$\hat{y}\pm t_{\alpha/2,n-p-1} SE(\hat{y})$$
+$$\,$$
+where $SE(\hat{y})=\sqrt{MSE\times\mathbf{x}_{new}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{x}_{new}}$ and $\mathbf{x}_{new}$ is the vector of predictors corresponding to $\hat{y}$.
+
+Confidence intervals for a new observation for a model with $p$ predictors:
+
+$$\hat{y}\pm t_{\alpha/2,n-p-1} \sqrt{MSE+SE(\hat{y})^2}$$
+
+# Generalised linear model: confidence bands
+
+Example:
+
+```{r}
+set.seed(20190718)
+x<-rnorm(50)
+y<-1.5*x+rnorm(50)
+df<-data.frame(x=x,y=y)
+mod<-lm(y~x,data=df)
+xx<-seq(-3,3,length=500)
+predMean<-as.data.frame(predict(mod,newdata=data.frame(x=xx),interval="confidence"))
+predNew<-as.data.frame(predict(mod,newdata=data.frame(x=xx),interval="prediction"))
+```
+
+# Generalised linear model: confidence bands
+
+Example:
+
+```{r}
+plot(y~x,data=df,cex=2)
+lines(c(-3,3),coef(mod)[1]+coef(mod)[2]*c(-3,3),lwd=2,col="steelblue")
+polygon(c(xx,xx[length(xx):1]),c(predNew$lwr,predNew$upr[length(xx):1]),border=NA,col=rgb(200,0,0,alpha=80,maxColorValue=255))
+polygon(c(xx,xx[length(xx):1]),c(predMean$lwr,predMean$upr[length(xx):1]),border=NA,col=rgb(120,200,0,alpha=130,maxColorValue=255))
+lines(c(-3,3),coef(mod)[1]+coef(mod)[2]*c(-3,3),lwd=2,col="steelblue")
+```
+
+
+# Generalised linear model: confidence bands
+
+**Exercise**
+
+For data as below, compute and plot 95% confidence intervals for the model fit:
+```{r}
+set.seed(201907)
+x<-runif(50,min=1,max=4)
+y<-rpois(50,lambda=exp(x))
+```
+
+# Generalised linear model: confidence bands
+
+Solution
+
+```{r}
+mod<-glm(y~x,family=poisson)
+newDat<-data.frame(x=seq(1,4,length=500))
+pred<-predict(mod,newdata=newDat,type="link",se.fit=TRUE)
+predFit<-exp(pred$fit)
+predLow<-exp(pred$fit-qnorm(0.975)*pred$se.fit)
+predHigh<-exp(pred$fit+qnorm(0.975)*pred$se.fit)
+
+plot(x,y)
+lines(lwd=2,col="steelblue",newDat$x,predFit)
+lines(lwd=1.5,col="steelblue",newDat$x,predHigh,lty=2)
+lines(lwd=1.5,col="steelblue",newDat$x,predLow,lty=2)
+```
+
+# Generalised linear model
+
+We can generalise the residual sum of squares (also known as the error sum of squares). We introduce the **deviance**:
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\phi\left(l(\mathbf{\hat{\theta}}_s)-l(\hat{\mathbf{\theta}})\right)$$
+where $\hat{\mathbf{\theta}}_s$ and $\hat{\mathbf{\theta}}$ refer to the MLE parameters of the *saturated* and the proposed model respectively and $l()$ is the log-likelihood function.
+
+The **saturated model** is a model with 1 parameter for every observation. It is the model that fits the data exactly.
+
+
+# Generalised linear model
+
+**Exercise**
+$$\,$$
+
+Show that the deviance for the general linear model (Gaussian error distribution, identity link) is just the residual / error sum of squares ESS.
+
+$$\,$$
+
+This implies that the deviance generalises the residual sum of squares to GLMs.
+
+# Generalised linear model
+
+Solution:
+
+The log likelihood is given by
+
+$$l(\mathbf{\theta})=\log\left(\prod_i\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(\frac{-(y_i-\mu_i)^2}{2\sigma^2}\right)\right)=-\sum_i\frac{(y_i-\mu_i)^2}{2\sigma^2}-\frac{n}{2}\log(2\pi\sigma^2)$$
+
+In a linear model with $p$ predictors, we have seen that the MLE is given by $\hat{\mu}_i=\sum_jx_{ij}\hat{\beta}_j=\hat{y}_i$ where the $\hat{\beta}_j$ are the MLE coefficients.
+
+# Generalised linear model
+
+Solution:
+
+For the saturated model, we have 1 parameter $\theta_i$ for each observation $y_i$. Replacing $\mu_i$ with $\theta_i$ in the above expression for the log likelihood and solving the score equations
+
+$$\frac{\delta}{\delta\theta_i}l(\hat{\mathbf{\theta}})=0 \iff \frac{1}{\sigma^2}(y_i-\theta_i)=0\iff\theta_i=y_i$$
+
+And hence the log-likelihood of the saturated model is
+
+$$l(\hat{\mathbf{\theta}}_s)=-\frac{n}{2}\log(2\pi\sigma^2)$$
+
+# Generalised linear model
+
+Solution:
+
+So finally, noting that $\phi=\sigma^2$, we have:
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\sigma^2\left(-\frac{n}{2}\log(2\pi\sigma^2)+\sum_i\frac{(y_i-\hat{\mu}_i)^2}{2\sigma^2}+\frac{n}{2}\log(2\pi\sigma^2)\right)=\sum_i(y_i-\hat{\mu}_i)^2=\sum_i(y_i-\hat{y}_i)^2=ESS$$
+QED
+
+# Generalised linear model
+
+The deviance is just a scaled likelihood ratio statistic (recall: differences of logs = log of ratio).
+
+As we saw, the deviance generalises the residual / error sum of squares to GLMs. This means the deviance can be used as a measure of goodness of fit.
+
+Under the null hypothesis of no difference between the saturated and the proposed model:
+$$\,$$
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})\sim\chi^2_{n-p-1}$$
+
+# Generalised linear model
+
+We can also compute the deviance for the worst model: the one where we include only an intercept. 
+
+This is called the **null deviance** and in the general linear model it is equal to the total sum of squares $TSS=SS_y$.
+
+$$\,$$
+$$D_0(\mathbf{y})=D(\mathbf{y},\bar{\mathbf{y}})=2\phi\left(l(\mathbf{\hat{\theta}}_s)-l(\hat{\beta}_0)\right)$$
+
+# Generalised linear model
+
+![https://bookdown.org/egarpor/PM-UC3M/glm-deviance.html](deviances.png)
+
+# Generalised linear model: diagnostics
+
+You have fitted a GLM model. How do you know it's any good?
+$$\,$$
+
+* Goodness of fit
+  + Visual check
+  + $R^2$, $R_{adj}^2$, proportion of deviance explained
+  + AIC, BIC
+* Residuals
+  + QQ plot
+  + residuals vs. predicted values
+  + Cook's distance, DBETAS
+
+
+
+# Generalised linear model: diagnostics
+
+**Goodness of fit**
+
+We have already seen $R^2$, the coefficient of determination. It can be interpreted as the proportion of variance explained by the model.
+
+$$\,$$
+$$R^2=\frac{RSS}{TSS}=1-\frac{ESS}{TSS}$$
+
+For GLMs we need to generalise the $R^2$ however. We can compute the proportion of deviance explained:
+
+$$\,$$
+$$R_d^2=1-\frac{D(\mathbf{y},\hat{\mathbf{\mu}})}{D_0(\mathbf{y})}$$
+
+# Generalised linear model: diagnostics
+
+**Goodness of fit**
+
+It is not wise to maximise $R^2$ (resp. $R^2_d$): you will end up with overfitted models with many parameters.
+
+The **adjusted $R^2$**,
+$$R_{adj}^2=1-(1-R^2)\frac{n-1}{n-p-1}$$
+is penalised for the number of parameters in the model (similarly for $R^2_d$).
+
+Note: $R^2$ usually only reported for general linear models. In GLMs it is more common to directly state both the null deviance and the model deviance.
+
+
+# Generalised linear model: diagnostics
+
+**Goodness of fit**
+
+When maximum likelihood is used, you can also consider the likelihood itself as a measure of **relative** goodness of fit.
+
+Again: better to penalise for the number of parameters in the model.
+
+Akaike Information Criterion (AIC)
+$$2\cdot(p+1)-2\cdot\mbox{ln}(\hat{L})$$
+
+Bayesian Information Criterion (BIC)
+$$\mbox{ln(n)}\cdot(p+1)-2\cdot\mbox{ln}(\hat{L})$$
+
+
+# Generalised linear model: diagnostics
+
+**Goodness of fit**
+$$\,$$
+
+Visually inspect the fit - if possible.
+
+Tricky for, e.g. binary responses and/or large number of predictors.
+
+#
+
+[end of ST6103 GLM Session 4]
