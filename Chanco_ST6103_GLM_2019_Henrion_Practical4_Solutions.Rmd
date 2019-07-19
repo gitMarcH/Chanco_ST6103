@@ -142,7 +142,7 @@ Some of the interaction terms we introduced are statistically significant - so i
 
 To interpret the interaction terms: the combined odds ratio (compared to individuals aged <25, having high education and not wanting more children), for being aged 30-39, having high education and wanting more children is $e^{1.6593-0.0662-1.1127}=1.62$. Without the interaction term this would have been (coefficients from the previous model!) $e^{0.9086-0.8330}=1.07$. 
 
-# Exercise
+# Exercise 2
 
 Our revised model now has a deviance of 12.63 on 7 degrees of freedom, $p=0.08$. This is no longer statistically significant (though only just) - our model fits much better now.
 
