@@ -1,0 +1,144 @@
+---
+title: "ST6103 - GLM - Practical 4"
+author: "Marc Henrion"
+date: "18 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 4: Generalised Linear Models
+
+# Exercise 1
+
+Show that the deviance for a GLM with Poisson distribution and log link is given by
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\sum_i\left(y_i\log\frac{y_i}{\hat{\mu}_i}-(y_i-\hat{\mu}_i)\right)$$
+Recall that the Poisson pmf for a variable $Y$ is given by $f_Y(y)=\frac{\lambda^ye^{-y}}{y!}$.
+
+Note: when $y_i=0$ then $y_i\log(y_i)=0$ (calculate the likelihood for this case before and after taking the logs to see this).
+
+# Practical - more on R
+
+GLMs are fitted in `R` using the function `glm()` which is similar to the `lm()` function which is used to fit linear models.
+
+By typing `?glm` at the console, you will see a documentation file explaining how to use the `glm` function and a description of what the different input argument are.
+$$\,$$
+
+`glm(formula, family = gaussian, data, weights, subset, na.action, start = NULL, etastart, mustart, offset, control = list(...), model = TRUE, method = "glm.fit", x = FALSE, y = TRUE, singular.ok = TRUE, contrasts = NULL, ...)`
+
+
+# Practical - more on R
+
+The model is specified by the `formula` argument. This takes the form
+
+$$\,$$
+`y~x1+x2`
+$$\,$$
+
+where `x1`, `x2` are the names of the predictor variables as they are stored either directly in `R` or in a data frame object in R.
+
+All specified variables must be in the workspace or in the data frame specified by the `data` argument.
+
+# Practical - more on R
+
+Variables can be either
+
+* numeric (continuous variables)
+
+* factor (categorical variables)
+
+$$\,$$
+
+For categorical variables: make sure they are either stored as `character` or `factor` variables in R. If you categorical variables uses numeric identifiers (e.g. 1, 2, 3 for 3 different groups), then you need to explicitly state that `R` should treat this as a categorical variable: `as.factor(x2)`.
+
+# Practical - more on R
+
+`R` syntax allows you to specify:
+
+$$\,$$
+
+* `x1:x2` for the interaction term(s) between `x1` and `x2`
+
+* `x1*x2` as a shorthand for `x1+x2+x1:x2`
+
+* `.` for all first order terms of variables in the data frame specified by `data`
+
+* `1` to (explicitly) include an intercept (default)
+
+* `0` to exclude an intercept
+
+$$\,$$
+
+Terms can be also excluded by using `-`. This is most useful if you want to include in the model most, but not all variables from the data frame specified by `data`.
+
+
+# Practical - more on R
+
+For GLMs the key argument is `family`. This argument specifies
+$$\,$$
+
+* the **link** function to be used
+
+* the **error distribution** to be used and hence the **variance function**
+
+$$\,$$
+
+If you only tell R the distribution family, the canonical link will be used. But you can specify other link functions.
+
+
+# Practical - more on R
+
+To see what exponential family distributions are available in `R`, type `?family`.
+$$,$$
+
+* `binomial(link = "logit")`
+
+* `gaussian(link = "identity")`
+
+* `Gamma(link = "inverse")`
+
+* `inverse.gaussian(link = "1/mu^2")`
+
+* `poisson(link = "log")`
+
+* `quasibinomial(link = "logit")`
+
+* `quasipoisson(link = "log")`
+
+* `quasi(link = "identity", variance = "constant")`
+
+Note: the last of these is user-specified.
+
+
+# Exercise 2
+
+Download (from GitHub) and load the dataset `cuse.csv`.
+
+This is a dataset on contraceptive use. `using`, `notUsing` lists how many people in each group implied by combinations of `age`, `education`, `wantsMore` are currently using contraceptives. `age`, `education` are self-explanatory. `wantsMore` lists whether individuals want more children or not.
+
+Model the binary variable specified by the 2 columns `using`, `notUsing` in terms of `age`, `education`, `wantsMore`.
+
+* Discuss your results.
+
+* What can you say about the deviance? Does it look like this is a good model?
+
+* What happens if you include an interaction term between the age variable and the desire for more children variable?
+
+
+#
+
+[end of ST6103 GLM Practical 4]
