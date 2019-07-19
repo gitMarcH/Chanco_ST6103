@@ -1,0 +1,159 @@
+---
+title: "ST6103 - GLM - Practical 4"
+author: "Marc Henrion"
+date: "18 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 4: Generalised Linear Models
+
+# Exercise 1
+
+Show that the deviance for a GLM with Poisson distribution and log link is given by
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\sum_i\left(y_i\log\frac{y_i}{\hat{\mu}_i}-(y_i-\hat{\mu}_i)\right)$$
+Recall that the Poisson pmf for a variable $Y$ is given by $f_Y(y)=\frac{\lambda^ye^{-y}}{y!}$.
+
+Note: when $y_i=0$ then $y_i\log(y_i)=0$ (calculate the likelihood for this case before and after taking the logs to see this).
+
+# Exercise 1
+
+For a dataset $\{\mathbf{y},\mathbf{X}\}$, the log likelihood function for a Poisson model is given by
+$$l(\mathbf{\lambda})=\sum_i\left(y_i\log\lambda_i-\lambda_i-\log(y_i!)\right)$$
+For a Poisson GLM, we estimate the $\lambda_i$ parameter by the linear predictor $\hat{\lambda}_i=\sum_j \hat{\beta}_j x_{ij}$ and $\hat{\mathbf{\lambda}}=\hat{\mathbf{\mu}}=\mathbf{X}\hat{\mathbf{\beta}}$. Hence
+
+$$l(\hat{\mathbf{\mu}})=\sum_i(y_i\log\hat{\mu}_i -\hat{\mu}_i)-\log(y_i!)$$
+For the saturated model we need to find $n$ parameters $\lambda_i$ that directly maximise $l(\mathbf{\lambda})$.
+
+# Exercise 1
+
+So we need to solve the score equations $\frac{\delta}{\delta\lambda_i}l(\mathbf{\lambda})=0$, $i=1,\ldots,n$. The partial derivatives are given by
+
+$$\frac{\delta}{\delta\lambda_i}l(\mathbf{\lambda})=y_i\frac{1}{\lambda_i}-1$$
+So by solving $y_i/\lambda_i-1=0$, $i=1,\ldots,n$ we find $\hat{\lambda}_i=y_i$, $i=1,\ldots,n$. Hence $\hat{\mathbf{\lambda}}_s=\mathbf{y}$ and
+
+$$l(\hat{\mathbf{\lambda}}_s)=\sum_i(y_i\log y_i-y_i-\log(y_i!))$$
+
+# Exercise 1
+
+We can now write the deviance, noting that $\phi=1$ for the Poisson GLM:
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\phi(l(\hat{\mathbf{\lambda}}_s)-l(\hat{\mathbf{\mu}}))=2\cdot1\cdot\sum_i\left(y_i\log y_i-y_i-\log(y_i!)-y_i\log\hat{\mu}_i +\hat{\mu}_i+\log(y_i!) \right)=2\sum_i\left(y_i\log\frac{y_i}{\hat{\mu}_i}-(y_i-\hat{\mu}_i)\right)$$
+QED
+
+# Exercise 2
+
+Download (from GitHub) and load the dataset `cuse.csv`.
+
+This is a dataset on contraceptive use. `using`, `notUsing` lists how many people in each group implied by combinations of `age`, `education`, `wantsMore` are currently using contraceptives. `age`, `education` are self-explanatory. `wantsMore` lists whether individuals want more children or not.
+
+Model the binary variable specified by the 2 columns `using`, `notUsing` in terms of `age`, `education`, `wantsMore`.
+
+* Discuss your results.
+
+* What can you say about the deviance? Does it look like this is a good model?
+
+* What happens if you include an interaction term between the age variable and the desire for more children variable?
+
+# Exercise 2
+
+```{r, tidy=T, collapse=T}
+dat<-read.csv("cuse.csv")
+mod<-glm(cbind(using,notUsing)~age+education+wantsMore,data=dat,family=binomial)
+
+summary(mod)
+```
+
+# Exercise 2
+
+The reference group are people <25 years of age, with high education level and who do not want more children.
+
+For this group, the (average) probability of using contraceptives is given by
+$$\,$$
+$\frac{1}{1+e^{\hat{\beta}_0}}=\frac{e^{-0.8082}}{1+e^{-0.8082}}=0.31$.
+
+$$\,$$
+Notes: $log\left(\frac{p}{1-p}\right)=\beta_0\Rightarrow p=\frac{e^{\beta_0}}{1+e^{\beta_0}}$
+
+
+# Exercise 2
+
+Relative to this reference group:
+
+* Contraceptive use increases for older ager groups: compared to the <25 group, the odds ratio of using contraceptives are $e^0.3894=1.48$, $e^0.9086=2.48$, $e^1.1892=3.28$ for the age groups $25-29$, $30-39$, $40-49$ respectively. 
+
+* Having a low level of education decreases contraceptive use ($OR=e^{-0.3250}$=0.72<1)
+
+* Wanting more children decreases contraceptive use ($OR=e^{-0.8330}=0.43<1$)
+
+Note: you can directly compute ORs by typing `exp(coef(mod)[-1])`:
+
+```{r, tidy=T, collapse=T}
+print(exp(coef(mod)[-1]))
+```
+
+# Exercise 2
+
+You can also compute ORs for groups that involve several of the predictors: e.g. the OR for individuals aged 40-49, with high education and wanting more children is $e^{1.1892-0.833}=1.43$.
+
+We can even compute probabilities: $P(\mbox{contraceptive use}|\mathbf{x})=\frac{e^{\mathbf{\beta}^T\mathbf{x}}}{1+e^{\mathbf{\beta}^T\mathbf{x}}}$
+
+So for the above group, this is $p=\frac{e^{-0.8082+1.1892-0.833}}{1+e^{-0.8082+1.1892-0.833}}=0.65$
+
+# Exercise 2
+
+Coefficients for all variables are statistically significant, telling us that there is evidence that the predictor variables are associated with the response variable.
+
+The deviance of this model is 29.917 on 10 degrees of freedom. This is highly statistically signficant: $p=8.84\cdot10^{-4}$.
+
+```{r}
+1-pchisq(29.917,df=10)
+```
+
+This means we reject the null hypothesis that our model is no different than the saturated model. There is evidence that we have not explained all the variation in the dataset. Our model does not fit well.
+
+Let's add an interaction term between age and wanting more children.
+
+# Exercise 2
+
+```{r, tidy=T, collapse=T}
+mod2<-glm(cbind(using,notUsing)~age+education+wantsMore+education+age:wantsMore,data=dat,family=binomial)
+summary(mod2)
+```
+
+# Exercise 2
+
+Some of the interaction terms we introduced are statistically significant - so it was good to include them in the model.
+
+To interpret the interaction terms: the combined odds ratio (compared to individuals aged <25, having high education and not wanting more children), for being aged 30-39, having high education and wanting more children is $e^{1.6593-0.0662-1.1127}=1.62$. Without the interaction term this would have been (coefficients from the previous model!) $e^{0.9086-0.8330}=1.07$. 
+
+# Exercise
+
+Our revised model now has a deviance of 12.63 on 7 degrees of freedom, $p=0.08$. This is no longer statistically significant (though only just) - our model fits much better now.
+
+```{r}
+1-pchisq(12.63,df=7)
+```
+
+Note that the coefficient for the individual term `wantsMore` is no longer statistically significant (as well as one for the age categories).
+
+that is no reason to remove it from the model: the interaction terms would be difficult to interpret without it and also it can still contribute to predicting new data.
+
+# 
+
+[end of ST6103 GLM Practical 4]
