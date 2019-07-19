@@ -1,0 +1,474 @@
+---
+title: "ST6103 - GLM - Session 5"
+author: "Marc Henrion"
+date: "19 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Session 5: Generalised Linear Model - continued
+
+
+# Notation
+
+* $X, Y$ - random variables (here: X = predictor, Y = response)
+
+* $x, y$ - measured / observed values
+
+* $\epsilon$ - random variable (here: error / residual)
+
+* $\mathbf{\theta}$ - a vector of parameters
+
+* $\bar{X}$, $\bar{Y}$ - sample mean estimators for X, Y
+
+* $\bar{x}$, $\bar{y}$ - sample mean estimates of X, Y
+
+* $\hat{T}$, $\hat{t}$ - given a statistic T, estimator and estimate of T
+
+* $P(A)$ - probability of an event A occuring
+
+* $f_X(.)$, $f_Y(.)$ - distribution mass / density functions of X, Y
+
+* $X\sim F$ - X distributed according to distribution function F
+
+* $E[X]$, $E[Y]$, $E[T]$ - the expectation of X, Y, T respectively
+
+
+# Generalised linear model
+
+It is often helpful to express how the variance of $Y_i$ depends on the mean $\mu_i$. To do this we can define the **variance function** $V(\mu_i)$:
+$$\,$$
+
+$$Var(Y_i)=a(\phi) V(\mu_i)$$
+$$\,$$
+where $\phi$ is the **dispersion parameter** and $a(\phi)$ the same function from the exponential family functional form equation.
+
+$$\,$$
+
+We did encounter this function earlier, during the IWLS algorithm derivation.
+
+# Generalised linear model
+
+Examples of variance functions:
+$$\,$$
+
+* Gaussian distribution:
+
+$$V(\mu)=1\;\mbox{ since }E(Y)=\mu, Var(Y)=\sigma^2$$
+
+* Binomial distribution:
+
+$$V(\mu)=\mu(1-\mu)\;\mbox{ since }E(Y/m)=\mu, Var(Y/m)=\frac{1}{m}\pi(1-\pi)$$
+
+* Poisson distribution:
+
+$$V(\mu)=\mu\;\mbox{ since }E(Y)=\lambda, Var(Y)=\lambda$$
+
+
+# Generalised linear model: diagnostics
+
+**Residuals**
+
+We can calculate several different types of residulals in a GLM:
+
+* **response** $r_i=y_i-\hat{y}_i$
+
+* **working** $r^W_i$ obtained from the last iteration of the IWLS algorithm
+
+* **Pearson** response residuals standardised by the variance function
+$r^P_i=\frac{y_i-\hat{y}_i}{\sqrt{V(\hat{\mu}_i)}}$
+
+* **deviance** $r^D_i$ so that $\sum_i(r^D_i)^2=D(\mathbf{y},\hat{\mathbf{\mu}})$ 
+
+$$\,$$
+Note: for normal models these are all equal.
+
+# Generalised linear model: diagnostics
+
+**Exercise**
+$$\,$$
+
+Derive the deviance residuals for Gaussian-identity and Poisson-log models. In the former case, show that these are equal to the response residuals.
+
+# Generalised linear model: diagnostics
+
+**Solution**
+$$\,$$
+
+Yesterday we showed that for the Gaussian-distribution, identity-link GLM, the deviance is just the residual sum of squares ESS:
+$$\,$$
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=\sum_i(y_i-\hat{y}_i)^2$$
+So this obviously implies that $r_i^D=y_i-\hat{y}_i$ and so the response and deviance residuals are the same for the Gaussian GLM.
+
+# Generalised linear model: diagnostics
+
+**Solution**
+$$\,$$
+
+For the Poisson GLM with log link we showed that the deviance is given by
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\sum_i\left(y_i\log\frac{y_i}{\hat{\mu}_i}-(y_i-\hat{\mu}_i)\right)$$
+Obviously we can write this as
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=\sum_i\left(\sqrt{2\left(y_i\log\frac{y_i}{\hat{\mu}_i}-(y_i-\hat{\mu}_i)\right)}\right)^2$$
+
+# Generalised linear model: diagnostics
+
+**Solution**
+$$\,$$
+Taking square roots of these summed squares, and choosing the sign implied by whether $y_i$ is larger or less than the predicted value $\hat{\mu}$:
+
+$$r_i^D=\mbox{sgn}(y_i-\hat{\mu}_i)\sqrt{2\left(y_i\log\frac{y_i}{\hat{\mu}_i}-(y_i-\hat{\mu}_i)\right)}$$
+Note: $\hat{\mu}_i$ is just a different notation (highlighting that we always predict average values) for $\hat{y}_i$.
+
+# Generalised linear model: diagnostics
+
+2 main reasons for computing residuals:
+$$\,$$
+
+* adjustment: eliminate a nuisance parameter; e.g. blood pressure adjusted for age, weight adjusted for height, ...
+
+* model diagnostics: residuals are quite useful for checking model assumptions, identifying influential observations etc.
+
+
+# Generalised linear model: diagnostics
+
+Model diagnostics: why do it?
+$$\,$$
+
+There is a very simple & good reason: if the data violate the model assumptions, then all the inferential results we derived (coverage of CIs, p-values, ...) no longer hold -- we cannot really say anything about the process that generated the data from our model and the model predictions are likely to be very wrong.
+
+$$\,$$
+
+The point of model diagnostics is to check that the model assumptions seem to be met.
+
+# Generalised linear model: diagnostics
+
+**QQ plot**
+
+This plots the empirical quantiles of the residuals against those from the theoretical distribution of the errors; such plots are called **quantile-quantile plots** or simply **QQ plots**.
+
+For Gaussian response models, the theoretical distributions is just the normal distribution. For other response distributions, this can be a bit trickier and simulations may be needed needed to derive approximate theoretical quantiles. We know that the linear predictor estimates are approximately normally distributed, so we could compute residuals on that scale and then do a normal distribution QQ plot. However even this has its limitations.
+
+# Generalised linear model: diagnostics
+
+**QQ plot**
+
+Further, models like logistic regression are *direct probability* models and hence there aren't really distributional assumptions for the errors.
+$$\,$$
+
+For these reasons, in GLMs, as opposed to normal distribution linear models, QQ plots are not often used.
+
+
+# Generalised linear models: diagnostics
+
+That said, if the residuals are distributed as implied by the model, then the points on the QQ plot should lie on a straight line.
+
+```{r}
+data(iris)
+modLinReg<-glm(Petal.Length~Petal.Width,data=iris,family=gaussian)
+rmod<-resid(modLinReg)
+theoQ<-qnorm(order(order(rmod))/length(rmod)) # calculates theorectical normal quantiles
+plot(theoQ,rmod,
+     xlab="theoretical normal quantiles",
+     ylab="sample quantiles",
+     main="QQ plot", cex=2)
+qqline(rmod) # just adds the line
+```
+
+
+
+# Generalised linear model: diagnostics
+
+**Residuals vs. fitted values**
+
+In a Gaussian errors, identity link GLM, you can easily verify whether:
+$$\,$$
+
+* residuals centered symmetrically around 0
+* residuals have constant variance
+* there are any outliers (conditional on the linear predictor)
+
+```{r}
+plot(predict(modLinReg),resid(modLinReg),xlab="predicted values",ylab="residuals",cex=2)
+abline(h=0,lty=2,col="red")
+```
+
+
+# Generalised linear model: diagnostics
+
+**Residuals vs. fitted values**
+
+For non-normal GLMs, it is not as straightforward:
+$$\,$$
+
+* Which residuals to pick?
+
+* As we can have non-constant variance functions, we should not expect constant variance.
+
+* Residuals on the link scale or the data scale?
+
+
+# Generalised linear model: diagnostics
+
+**Residuals vs. fitted values**
+
+`R` will by default return deviance residuals (e.g. by typing `resid(mod)`). You can use the same `R` function to compute the other residuals: `resid(mod,type="pearson")` will compute the Pearson residuals.
+
+Pearson residuals are very useful: these residuals are standardised by the estimated variance function. In other words, if the Pearson residuals exhibit non-constant variance, then this suggest we have misspecified the data distribution.
+
+```{r}
+cuse<-read.csv("cuse.csv")
+modPois<-glm(cbind(using, notUsing) ~ age + education + wantsMore + education + age:wantsMore, data=cuse, family=binomial)
+plot(predict(modPois,type="response"),resid(modPois,type="pearson"),xlab="fitted values",ylab="Pearson residuals",cex=2)
+```
+
+# Generalised linear model: diagnostics
+
+**Residuals vs. fitted values**
+
+Also check the residuals for data points with large residuals. These observations have surprising observed response values *given* the values of their predictor values.
+$$\,$$
+
+Observations with large residuals are **outliers**. Outliers at the extreme ends of the range of the predictor variables are highly likely to be **influential data points** (more later).
+
+# Generalised linear model: diagnostics
+
+**Residuals**
+
+R will compute 4 standard diagnostics plots for you if you type `plot(mod)`.
+$$\,$$
+
+```{r}
+par(mfrow=c(2,2))
+plot(modLinReg)
+```
+
+
+# Generalised linear model: diagnostics
+
+**Checking the link function**
+
+There is a simple test one can do to check if the link function is correctly specified:
+$$\,$$
+
+1. Fit the model.
+
+2. Compute predicted values $\hat{\eta}_i$ for the linear predictor
+
+3. Add $\hat{\eta}_i^2$ as another predictor into the model and re-fit.
+
+4. If the coefficient for $\hat{\eta}_i^2$ is significant, this suggests that the link function may be misspecified.
+
+
+# Generalised linear model: diagnostics
+
+**Checking the link function**
+
+```{r, tidy=T, collapse=T}
+eta2<-predict(modPois,type="link")^2
+modPoisEta<-glm(cbind(using, notUsing) ~ eta2 + age + education + wantsMore + education + age:wantsMore, data=cuse, family=binomial)
+
+summary(modPoisEta)$coefficients[,c(1,4)]
+```
+
+
+# Generalised linear model: diagnostics
+
+**Influential observations**
+
+An **influential observation** is an observation which, if dropped from the dataset when fitting the model, would noticeably affect the model parameter estimates.
+
+We have already alluded to one type of such influential observations: observations with high leverage - large residuals near the extremes of the predictor variables' ranges.
+
+There are many methods, most based on re-fitting models while leaving out individual observations. We will focus on 2 metrics: **hat values** (measuring leverage of observations) and **Cook's distance** (measuring influence).
+
+
+# Generalised linear model: diagnostics
+
+**Influential observations**
+
+The **hat matrix** $\mathbf{H}$ is the matrix that projects $\mathbf{y}$ onto the subspace spanned by the columns of the design matrix $\mathbf{X}$: $\hat{\mathbf{y}}=\mathbf{H}\mathbf{y}$. In the normal distribution linear model: $$\mathbf{H}=\mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T$$
+and in GLMs:
+$$\mathbf{H}=\mathbf{W}^{1/2}\mathbf{X}(\mathbf{X}^T\mathbf{W}\mathbf{X})^{-1}\mathbf{X}^T\mathbf{W}^{1/2}$$
+$$\,$$
+
+The **hat values** $h_{ii}$ are the diagonal elements of this matrix and they indicate the leverage of observations.
+
+
+# Generalised linear model: diagnostics
+
+**Influential observations**
+
+The $h_{ii}$ are bounded between 0 and 1 (in models with an intercept, they are bounded between 1/n and 1), and their sum, $\sum_i h_{ii}$, is always equal to $p+1$, the number of coefficients in the model, including the intercept. Problems in which there are a few very large $h_{ii}$ can be troublesome: in particular, large-sample normality of some linear combinations of the regressors is likely to fail, and high-leverage observations may exert undue influence on the results.
+
+The `R` function `hatvalues()` will compute hat values for both `lm` and `glm` objects.
+
+```{r}
+plot(hatvalues(modPois),cex=2)
+```
+
+# Generalised linear model: diagnostics
+
+**Influential observations**
+
+The most common influence measure is **Cook's distance**. It is one of many leave-one-out / deletion methods for measuring influence of observations.
+
+If $\mathbf{\beta}$ is the estimated coefficient vector from the full dataset, then let $\hat{\mathbf{\beta}}_{(i)}$ be the vector of coefficient estimates obtained from fitting the model to the dataset with the $i^{th}$ observation removed.
+
+The difference $\mathbf{\beta}-\hat{\mathbf{\beta}}_{(i)}$ directly measures the influence of the $i^{th}$ observation: small / large difference = small / large influence.
+
+
+# Generalised linear model: diagnostics
+
+**Influential observations**
+
+This difference is a vector however, and it is more convenient to summarise the influence by a single number.
+
+Cook's distance is the weighted sum of squares of the differences between the individual vector elements. In matrix notation:
+$$\,$$
+$$D_i=\frac{(\mathbf{\beta}-\hat{\mathbf{\beta}}_{(i)})^T(\mathbf{X}^T\mathbf{W}\mathbf{X})^{-1}(\mathbf{\beta}-\hat{\mathbf{\beta}}_{(i)})}{(p+1)s^2}$$
+
+# Generalised linear model: diagnostics
+
+**Influential observations**
+$$\,$$
+
+The `R` function `cooks.distance()` computes Cook's distance for both `lm` and `glm` objects.
+
+```{r}
+plot(cooks.distance(modPois),cex=2)
+```
+
+# Generalised linear model: diagnostics
+
+**Influential observations**
+
+The `R` package `car` has a helpful plotting function for plotting both the hat values and Cook's D (and also studentised residuals). Cook's D is given by the size of the circles.
+
+```{r, message=F, warnings=F}
+library(car)
+influencePlot(modPois)
+```
+
+# Interaction terms
+
+Consider the model
+
+$$Y=\beta_0+\beta_1\mbox{ age}+\beta_2\mbox{ male}+\beta_3\mbox{ male}\cdot\mbox{ age}+\epsilon$$
+
+If you are female, the effect on $Y$ for age is $\beta_1$.
+
+If you are male, the effect on $Y$ for age is $\beta_1+\beta_3$.
+
+This is an **interaction effect**: age and sex are not independent. There are different slopes for age, depending on your sex.
+
+You can have interaction terms for 2 categorical variables, 1 categorical & 1 continuous, 2 continuous variables.
+
+Interpretation becomes more difficult for 2 continuous variables.
+
+Always include both individual terms!
+
+
+# Collinearity
+
+If two predictors $X_1,X_2$ are correlated, then estimation of the GLM can become difficult and interpretation of coefficients also becomes tricky.
+
+The numerical instability comes from the fact that MLE will involve matrix inversion and this will become singular the more $X_1$ and $X_2$ are correlated.
+
+*Centering* correlated variables can help sometimes.
+
+
+There are methods to help spotting collinearity: **Variance inflation factors (VIF)** are helpful. The main idea behind VIFs is to check whether standard errors in the model increase significantly when you add a variable suspected to be collinear with another variable.
+
+# Confounding
+
+A **confounder variable** is a variable which simultaneously affects one or more predictors in your model *and* the response variable.
+
+**Confounding** can be noticed when the inclusion of a suspected confounder affects the coefficients for other variables in the model.
+
+
+# Model selection
+
+How to select variables for inclusion in a model?
+
+$$\,$$
+
+This is not a trivial topic and a rigorous treatment of this topic is beyond the scope of this course.
+
+$$\,$$
+
+Best to rely on expert knowledge and avoiding methods that are based on estimated effects such as (in decreasing order of badness)
+
+* significant variables from single predictor regressions
+* stepwise forwards selection
+* stepwise backwards selection
+
+
+# Model selection
+
+If you choose variables to keep in the model by their p-values, then use a high threshold, e.g. $0.5$.
+$$\,$$
+
+**Regularisation techniques** such as **elastic net** or the **lasso** have more desirable properties.
+
+
+# Relaxing linearity
+
+Linear, cubic, restricted cubic, B-**Splines** and **Generalised Additive Models (GAMs)** can provide very flexible ways to model data.
+
+$$\,$$
+
+$$\,$$
+
+This topic is beyond this course. 2 good references are:
+$$\,$$
+
+Harrell, F.E. (2015), "Regression Modelling Strategies.", 2nd ed., Springer
+
+$$\,$$
+Hastie, T., Tibshirani, R., Friedman, J. (2009), "The Elements of Statistical Learning", 2nd ed., Springer, https://web.stanford.edu/~hastie/Papers/ESLII.pdf
+
+
+
+# Correlated data
+
+If your observations $y_i$ are not independent because of correlations, e.g. clustering of children within teachers within schools, or longitudinal data with multiple observations for the same individual over time, we cannot use GLMs.
+
+$$\,$$
+
+Marginal models: **General Estimating Equations (GEE)**
+```{r, eval=F}
+library(gee)
+```
+
+Mixed models: **[Generalised] Linear Mixed Models ([G]LMM)**
+```{r, eval=F}
+library(nlme)
+library(lme4)
+```
+
+
+# `rms` package
+
+$$\,$$
+
+The `rms` package provides a full set of tools for all kinds of regression problems. It is a companion package to the Harrell book.
+
+
+#
+
+[end of ST6103 GLM Session 5]
