@@ -1,0 +1,80 @@
+---
+title: "ST6103 - GLM - Practical 5"
+author: "Marc Henrion"
+date: "19 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 5: Generalised Linear Models
+
+
+# Exercise 1
+
+Derive the deviance for a binomial GLM with logit link function and then derive the deviance residuals.
+
+# Exercise 1
+
+A random variable $Y\sim Bin(m,\pi)$ has pdf $\binom{m}{y}\pi^y(1-\pi)^{m-y}$. This means the log likelihood for a dataset ${\mathbf{y},\mathbf{X}}$ is simply
+$$\,$$
+
+$$l(\mathbf{\pi})=\sum_i\left(\log\binom{m_i}{y_i}+y\log\pi_i+(m_i-y_i)\log(1-\pi_i)\right)$$
+For the binomial GLM, $\hat{\mu}_i=\hat{y}_i/m_i=\hat{\pi}_i=\sum_j x_{ij}\beta_j$.
+
+The MLE for $\pi_i$ in a binomial model is $y_i/m_i$ and these are the parameters for the saturated model.
+
+Also note that $\phi=1$ for the binomial model.
+
+# Exercise 1
+
+Therefore the deviance is
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\sum_i\left(\log\binom{m_i}{y_i}+y_i\log\frac{y_i}{m_i}+(m_i-y_i)\log\left(\frac{m_i-y_i}{m_i}\right)-\log\binom{m_i}{y_i}-y_i\log\frac{\hat{y}_i}{m_i}-(m_i-y_i)\log\left(\frac{m-\hat{y}_i}{m_i}\right)\right)$$
+
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=2\sum_i\left(y_i\log\frac{y_i}{\hat{y}_i}+(m_i-y_i)\log\left(\frac{m_i-y_i}{m_i-\hat{y}_i}\right)\right)$$
+
+# Exercise 1
+
+This we can write as
+$$D(\mathbf{y},\hat{\mathbf{\mu}})=\sum_i\left(\sqrt{2\left(y_i\log\frac{y_i}{\hat{y}_i}+(m_i-y_i)\log\left(\frac{m_i-y_i}{m_i-\hat{y}_i}\right)\right)}\right)^2$$
+Therefore, making sure each $r_i^D$ has the sign of $y_i-\hat{y}_i$, the deviance residuals are given by
+$$r_i^D=\mbox{sgn}(y_i-\hat{y}_i)\sqrt{2\left(y_i\log\frac{y_i}{\hat{y}_i}+(m_i-y_i)\log\left(\frac{m_i-y_i}{m_i-\hat{y}_i}\right)\right)}$$
+
+# Exercise 2
+
+Go back to the contraceptive use Poisson GLM with interaction term fitted in Practical 4.
+
+Compute the various diagnostic metrics & figures.
+
+Discuss the results.
+
+# Exercise 2
+
+See the slides for lecture / session 5 for the computations.
+
+Discussion:
+
+* Pearson residuals look OK. Perhaps larger variance on the left hand side of the plot, but there are also simply more observations there, so more likely to populate more areas of the graph. In general it is difficult with only a few observations to interpret such a graph. No *dramatic* violations. We conclude that there is little evidence to suggest the variance function, and hence the data distribution, is misspecified.
+
+* Link function test shows no evidence that the link function is misspecified.
+
+* Several observations with potentially larger hat and Cook's D values. But again: no *dramatically* large values. We could do a sensitivity analysis by dropping the concerned observations from the model. 
+
+
+#
+
+[end of ST6103 GLM Practical 5]
