@@ -327,9 +327,9 @@ plot(hatvalues(modPois),cex=2)
 
 The most common influence measure is **Cook's distance**. It is one of many leave-one-out / deletion methods for measuring influence of observations.
 
-If $\mathbf{\beta}$ is the estimated coefficient vector from the full dataset, then let $\hat{\mathbf{\beta}}_{(i)}$ be the vector of coefficient estimates obtained from fitting the model to the dataset with the $i^{th}$ observation removed.
+If $\hat{\mathbf{\beta}}$ is the estimated coefficient vector from the full dataset, then let $\hat{\mathbf{\beta}}_{(i)}$ be the vector of coefficient estimates obtained from fitting the model to the dataset with the $i^{th}$ observation removed.
 
-The difference $\mathbf{\beta}-\hat{\mathbf{\beta}}_{(i)}$ directly measures the influence of the $i^{th}$ observation: small / large difference = small / large influence.
+The difference $\hat{\mathbf{\beta}}-\hat{\mathbf{\beta}}_{(i)}$ directly measures the influence of the $i^{th}$ observation: small / large difference = small / large influence.
 
 
 # Generalised linear model: diagnostics
@@ -422,8 +422,10 @@ Best to rely on expert knowledge and avoiding methods that are based on estimate
 
 If you choose variables to keep in the model by their p-values, then use a high threshold, e.g. $0.5$.
 $$\,$$
+The best approach is to discuss *a priori* with experts in the field in which the data have been collected and ask them what should be included in the model. Then base your inference only on that single model you fitted. Keep variables even if they have non-significant coefficients. E.g. predictions can still benefit from non-significant variables in the model.
 
-**Regularisation techniques** such as **elastic net** or the **lasso** have more desirable properties.
+$$\,$$
+**Regularisation techniques** such as **elastic net**, **ridge regression** or the **lasso** have more desirable properties.
 
 
 # Relaxing linearity

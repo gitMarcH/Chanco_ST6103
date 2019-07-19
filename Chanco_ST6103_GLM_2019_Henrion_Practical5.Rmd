@@ -1,0 +1,40 @@
+---
+title: "ST6103 - GLM - Practical 5"
+author: "Marc Henrion"
+date: "19 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 5: Generalised Linear Models
+
+
+# Exercise 1
+
+Derive the deviance for a binomial GLM with logit link function and then derive the deviance residuals.
+
+# Exercise 2
+
+Go back to the contraceptive use Poisson GLM with interaction term fitted in Practical 4.
+
+Compute the various diagnostic metrics & figures.
+
+Discuss the results.
+
+#
+
+[end of ST6103 GLM Practical 5]
