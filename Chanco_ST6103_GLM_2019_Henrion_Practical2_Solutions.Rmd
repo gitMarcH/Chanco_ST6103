@@ -1,0 +1,284 @@
+---
+title: "ST6103 - GLM - Practical 2"
+author: "Marc Henrion"
+date: "16 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 2: Generalised Linear Models using R
+
+# Exercise 1
+
+Download the file `byHandExample1.csv` from the GitHub repository.
+$$\,$$
+Use `read.csv()` or `read.table()` to read this dataset into `R`.
+$$\,$$
+
+Use the R functions `lm()` or `glm()` to fit the same linear model as we did yesterday when we calculated $\beta_0$ and $\beta_1$ by hand.
+$$\,$$
+
+* Convince yourself you get the same results.
+
+* What difference - if any - do you observe between using `lm()` and `glm()`?
+
+* Find out more about these r functions by typing `?lm` and `?glm`.
+
+
+# Exercise 1
+
+```{r,tidy=T, collapse=T}
+dat<-read.csv("byHandExample1.csv")
+
+modLm<-lm(y~x,data=dat)
+summary(modLm)$coefficients
+```
+
+This is the same as what we calculated by hand.
+
+
+# Exercise 1
+
+```{r,tidy=T, collapse=T}
+modGlm<-glm(y~x,data=dat)
+summary(modGlm)$coefficients
+```
+
+This gives us the same results.
+
+If you display the full summary of the model (i.e. typing `summary(modLm)` and `summary(modGlm)`), then output presentation is slightly different (e.g. no $R^2$ reported for the `modGlm`, but therefore deviances), but that's all.
+
+
+# Exercise 2
+
+Manually code up the data from yesterday's Exercise 2 in Practical 1.
+
+Then refit the same model from yesterday using `R`.
+
+* Convince yourself you get the same results.
+
+* Calculate $R^2$.
+
+
+# Exercise 2
+
+```{r, tidy=T, collapse=T}
+x<-c(-3,-1,0,2,5,6)
+y<-c(12,9,11,9,9,6)
+dat<-data.frame(x,y)
+
+modLm<-lm(y~x,data=dat)
+modGlm<-glm(y~x,data=dat)
+
+summary(modLm)$coefficients
+summary(modGlm)$coefficients
+```
+
+Same results as when we did this by hand and both `lm` and `glm` give the same coefficients and p-values.
+
+
+# Exercise 2
+
+We can either directly extract $R^2$ from the `lm` model fit:
+```{r}
+summary(modLm)$r.squared
+```
+
+Or we calculate it directly:
+
+```{r}
+yhat<-predict(modLm)
+tss<-sum((y-mean(y))^2)
+rss<-sum((yhat-mean(y))^2)
+r2<-rss/tss
+
+print(r2)
+```
+
+
+
+# Exercise 3
+
+Load the `mtcars` dataset by typing `data(mtcars)`. Get information about this dataset by typing `?mtcars`.
+
+* Explore this dataset: produce histograms & scatterplots. 
+
+* You want to find out which variables are most important to achieve a high miles per gallon rating in a car. Use `R` to build a GLM model regressing the `mpg` variables on `hp` (horsepower), `disp` (displacement),`cyl` (cylinders) and `wt` (weight). Interpret the model output.
+
+* Buid a model that would allow you to predict whether a car has manual or automatic transmission. Specifically, regress `am` (transmission) on `hp` (horse power) and `wt` (weight). Be careful to specify a binomial distribution with logit link! What about a log link? Identity link?
+
+Discuss (and explore!) your model results. What other variables would you consider including into the models?
+
+
+# Exercise 3
+
+```{r, tidy=T, collapse=T}
+data(mtcars)
+
+dim(mtcars)
+head(mtcars)
+```
+
+
+# Exercise 3
+
+```{r}
+hist(mtcars$mpg,xlab="mtcars")
+```
+
+# Exercise 3
+
+```{r}
+barplot(table(mtcars$cyl),xlab="cyl")
+```
+# Exercise 3
+
+```{r}
+hist(mtcars$disp,xlab="disp")
+```
+
+# Exercise 3
+
+```{r}
+hist(mtcars$hp,xlab="hp")
+```
+
+# Exercise 3
+
+```{r}
+hist(mtcars$drat,xlab="drat")
+```
+# Exercise 3
+
+```{r}
+hist(mtcars$wt,xlab="wt")
+```
+
+# Exercise 3
+
+```{r}
+hist(mtcars$qsec,xlab="qsec")
+```
+
+# Exercise 3
+
+```{r}
+barplot(table(mtcars$vs),xlab="vs")
+```
+
+# Exercise 3
+
+```{r}
+barplot(table(mtcars$am),xlab="am")
+```
+
+# Exercise 3
+
+```{r}
+barplot(table(mtcars$gear),xlab="gear")
+```
+
+# Exercise 3
+
+```{r}
+barplot(table(mtcars$carb),xlab="carb")
+```
+
+# Exercise 3
+
+```{r}
+pairs(mtcars)
+```
+
+# Exercise 3
+
+GLM for `mpg` on `hp` (horsepower), `disp` (displacement),`cyl` (cylinders) and `wt` (weight). 
+
+```{r, tidy=T,collapse=T}
+modMpg<-glm(mpg~hp+disp+cyl+wt,data=mtcars) # family=binomial is default; no need to specify
+summary(modMpg)
+```
+
+# Exercise 3
+
+Variables `hp`, `cyl` and `wt` have a negative coefficient in this model: i.e. cars with higher horsepower, more cylinders and that are heavier achieve, on average, less miles per gallon.
+
+The coefficient for `disp` is positive, suggesting more miles per gallon for larger displacement. This seems to contradict the scatterplot of `mpg` against `disp` where the relationship is strongly the other way around. This contradiction is probably due to the fact that cars with higher displacement also have more cylinders, larger horsepower and are heavier...
+
+Only the coefficient for `wt` achieves statistical significance, though the one for `cyl` is borderline.
+
+
+# Exercise 3
+
+Logistic regression model for `am` (transmission) on `hp` (horse power) and `wt` (weight). 
+
+```{r, tidy=T, collapse=T}
+modAm<-glm(am~hp+wt,family=binomial,data=mtcars) # logit link defautl for binomial, no need to specify
+summary(modAm)
+```
+
+# Exercise 3
+
+The coefficient for `hp` is positive: the more horsepower a car has, the more likely it is to have manual transmission. The coefficient for `wt` is negative: heavier cars tend to have automatic transmission.
+
+The odds ratio for being a manual transmission car associated with each unit increase in horse power is $exp(0.03626)\approx1.03$ and with each unit increase in weight (which is 1000lbs) is $exp(-8.08348)\approx0.0003$. For the latter it is more meaningful to give the odds ratio associated with an increase by 100lbs: `exp(-8.08348/10)\approx0.45`.
+
+Both coefficients are statistically significant.
+
+# Exercise 3
+
+The binomial models with idenity or log link fail to converge.
+
+You would specify these by:
+
+`modAmId<-glm(am~hp+wt,data=mtcars,family=binomial("identity"))`
+
+`modAmLog<-glm(am~hp+wt,data=mtcars,family=binomial("log"))`
+
+
+# Exercise 4
+
+$$\,$$
+Still using `mtcars`, compare the miles per gallon ratings for automatic and manual cars using both ANOVA and a general linear model.
+
+
+# Exercise 4
+
+```{r, tidy=T, collapse=T}
+# ANOVA
+aovMod<-aov(mpg~am,data=mtcars)
+# could also use anova(lm(mpg~am, data=mtcars))
+summary(aovMod)
+```
+
+# Exercise 4
+
+```{r, tidy=T, collapse=T}
+# GLM
+glmMod<-glm(mpg~am,data=mtcars)
+summary(glmMod)
+```
+
+# Exercise 4
+
+Note same p-values etc.
+
+
+
+# 
+
+[end of ST6103 GLM Practical 2]
