@@ -1,0 +1,255 @@
+---
+title: "ST6103 - GLM - Practical 3"
+author: "Marc Henrion"
+date: "17 July 2019"
+header-includes:
+   - \usepackage{amsmath}
+output:
+  powerpoint_presentation:
+    reference_doc: MlwChanco_Template.pptx
+---
+
+```{r setup, include=FALSE, echo=F}
+knitr::opts_chunk$set(echo = TRUE, fig.width=16, fig.height=9, dpi=150, highlight=T)
+
+require(tidyverse)
+require(knitr)
+require(gridExtra)
+```
+
+
+#
+
+## Practical 3: Generalised Linear Models
+
+# Exercise 1
+
+Show that the Poisson distribution with probability mass function $f_Y(k)=\frac{\lambda^ke^{-\lambda}}{k!}$ belongs to the exponential family and derive its canonical link function.
+
+# Exercise 1
+
+$$f_Y(k)=\frac{\lambda^ke^{-\lambda}}{k!}=\exp{\left(\log\left(\lambda^k\right)-\lambda-log(k!)\right)}=\exp\left(\frac{k\log(\lambda)-\lambda}{1}+(-\log(k!))\right)$$
+
+So this is an exponential family distribution with
+$$\theta=\log(\lambda)$$
+$$a(\phi)=1$$
+$$b(\theta)=\lambda$$
+$$c(k,\phi)=-\log(k!)$$
+
+For the canonical link, we note that $E[Y|X]=\lambda$, so we need to find $g()$ such that $g(E[Y|X])=\theta\Rightarrow g(\lambda)=log(\lambda)$.
+Hence the canonical link is just the natural logarithm.
+
+
+# Exercise 2
+
+Show that the gamma distribution with probability mass function $f_Y(y)=\frac{\beta^\alpha}{\Gamma(\alpha)}y^{\alpha-1}e^{-\beta y}$ belongs to the exponential family and derive its canonical link function.
+Recall that the mean of the gamme distribution $E[Y]=\alpha/\beta$.
+
+# Exercise 2
+
+$$f_Y(y)=\frac{\beta^\alpha}{\Gamma(\alpha)}y^{\alpha-1}e^{-\beta y}=exp(\alpha\log(\beta)-\log(\Gamma(\alpha))+(\alpha-1)\log(y)-\beta y)$$
+Rearranging, we get
+$$f_Y(y)=\exp\left(\frac{-\beta y + \alpha\log(\beta)}{1}+(\alpha-1)\log(x)-\log(\Gamma(\alpha))\right)$$
+To get $\alpha$ out of what will become $b(\theta)$ we write:
+$$f_Y(y)=\exp\left(\frac{-y \,\beta/\alpha - (-\log(\beta))}{1/\alpha}+(\alpha-1)\log(x)-\log(\Gamma(\alpha))\right)$$
+
+# Exercise 2
+
+Hence this is an exponential family distribution with:
+$$\theta = -\frac{\beta}{\alpha}$$
+$$a(\phi)=1/\alpha$$
+$$b(\theta)=\log(\beta)$$
+$$c(y,\phi)=(\alpha-1)\log(x)-\log(\Gamma(alpha))$$
+
+$$\,$$
+
+For the canonical link, we need $g()$ so that $g(E[Y|X])=\theta$. Since $E[Y|X]=\alpha/\beta$ and $\theta=-\beta/\alpha$, this means the canonical link is the inverse function $g(x)=-1/x$.
+
+
+# Exercise 3
+
+State the model assumptions for
+
+* Simple linear regression
+
+* General linear model
+
+* Generalised linear model
+
+
+# Exercise 3
+
+$$\,$$
+
+* Simple linear regression
+  + Independent observations
+  + True linear relationship between variables
+
+$$\,$$
+
+* General linear model
+  + Independent observations
+  + Linear predictor describes true relationship between response and independent variables
+  + Gaussian error distribution
+  + Constant variance $\sigma^2$ (homoscedasticity)
+
+# Exercise 3
+
+$$\,$$
+
+* Generalised linear model
+  + Independent observations
+  + link function of the linear predictor describes true the response and independent variables
+  + Exponential family distribution (this implies a variance function which describes how the variance depends on the mean)
+  + monotonic, differentiable link function
+  + large sample approximation for MLEs
+
+
+# Exercise 4
+
+Load the `warpbreaks` dataset by typing `data(warpbreaks)` in `R`.
+
+We are interested in investigating the relationship between the number of breaks in woolwarp with wool type and tension.
+
+* Plot a histogram of the data. Compare to the Poisson distribution with parameter equal to the average number of breaks.
+
+* Fit a Poisson regression model for `breaks` against `wool`.
+
+* Fit a Poisson regression model for `breaks` against `tension`.
+
+* Fit a Poisson regression model for `breaks` against both `wool` and `tension`.
+
+* Fit a Poisson regression model for `breaks` against both `wool` and `tension` and their interaction terms.
+
+* Plot fitted number of breaks against observed breaks.
+
+Discuss your results! What predicts `breaks`? Which is the best model?
+
+
+# Exercise 4
+
+```{r}
+data(waprbreaks)
+
+# let's see what this data looks like
+dim(warpbreaks) # number of rows and columns
+head(warpbreaks) # displays first few rows
+```
+
+# Exercise 4
+
+Historgrams of the response variable `breaks` and barplots of the 2 other variables.
+
+```{r}
+hist(warpbreaks$breaks,breaks=9:70+0.5,xlab="breaks",ylab="frequency")
+barplot(table(warpbreaks$wool),xlab="wool",ylab="frequency")
+barplot(table(warpbreaks$tension),xlab="tension",ylab="frequency")
+```
+
+# Exercise 4
+
+Comparing the histogram for `breaks` to a theoretical Poisson distribution with MLW parameter (average number of breaks).
+
+While the mode of the distribution seems to be reasonably well captured, this does not fit all that well: the data has a few much larger number of breaks than would be predicted under Poisson model.
+
+Also we have more smaller number of breaks than predicted under the Poisson model.
+
+```{r}
+avgBreaks<-mean(warpbreaks$breaks)
+hist(warpbreaks$breaks,breaks=9:70+0.5,xlab="breaks",ylab="frequency")
+xx<-10:70
+yy<-dpois(xx,lambda=avgBreaks)
+scalingFactor<-nrow(warpbreaks) # number of trials
+points(xx,yy*scalingFactor,pch=19,col="red")
+```
+
+# Exercise 4
+
+Doing one such figure (see following slides) for every wool & tension combination now has fewer near impossible observations, but now there are too few data points for each combination to allow a meaningful combination.
+
+We still seem to have too many small and large values though on most figures - this could indicate that a one-parameter Poisson distribution could struggle to fit well.
+
+We can try to fit a Poisson model with rate parameter given by a linear combination of wool type and tension. We should  assess model fit as it may be that the Poisson is not that great a model.
+
+# Exercise 4
+
+```{r}
+par(mfrow=c(2,3))
+for(w in levels(warpbreaks$wool)){
+  for(t in levels(warpbreaks$tension)){
+    tmpDat<-warpbreaks[warpbreaks$wool==w & warpbreaks$tension==t,]
+    
+    avgBreaks<-mean(tmpDat$breaks)
+    hist(tmpDat$breaks,breaks=(min(tmpDat$breaks)-1):max(tmpDat$breaks)+0.5,xlab="breaks",ylab="frequency",main=paste(sep="","wool = ",w,", tension = ",t))
+    yy<-dpois(xx,lambda=avgBreaks)
+    scalingFactor<-nrow(tmpDat) # number of trials
+    points(xx,yy*scalingFactor,pch=19,col="red")
+  }
+}
+```
+
+# Exercise 4
+
+Poisson regression model for `breaks` against `wool`.
+
+```{r, tidy=T, collapse=T}
+modW<-glm(breaks~wool,data=warpbreaks,family=poisson)
+
+print(summary(modW)$coefficients)
+print(1-pchisq(modW$deviance,df=modW$df.residual))
+```
+
+While the coefficient for `woolB` is highly significant, the deviance (`r round(digits=2,modW$deviance)`) is very large for the degrees of freedom (`r modW$df.residual`) and highly significant, indicating a lot of unexplained variation and bad model fit.
+
+
+# Exercise 4
+
+Poisson regression model for `breaks` against `tension`.
+
+```{r, tidy=T, collapse=T}
+modT<-glm(breaks~tension,data=warpbreaks,family=poisson)
+
+print(summary(modT)$coefficients)
+print(1-pchisq(modT$deviance,df=modT$df.residual)) 
+```
+
+While the coefficients for `tensionM` and `tensionH` are highly significant, the deviance (`r round(digits=2,modT$deviance)`) is very large for the degrees of freedom (`r modT$df.residual`) and highly significant, indicating a lot of unexplained variation and bad model fit.
+
+Note that the df=`r modT$df.residual` since we have 3 model parameters.
+
+# Exercise 4
+
+Poisson regression model for `breaks` against `wool` and `tension`.
+
+```{r, tidy=T, collapse=T}
+modWT<-glm(breaks~wool + tension,data=warpbreaks,family=poisson)
+
+print(summary(modWT)$coefficients)
+print(1-pchisq(modWT$deviance,df=modWT$df.residual)) 
+```
+
+While the coefficients for `woolB`, `tensionM` and `tensionH` are highly significant, the deviance (`r round(digits=2,modWT$deviance)`) is very large for the degrees of freedom (`r modWT$df.residual`) and highly significant, indicating a lot of unexplained variation and bad model fit. Note: the deviance is improving.
+
+# Exercise 4
+
+Poisson regression model for `breaks` against `wool`, `tension` and their interaction term.
+
+```{r, tidy=T, collapse=T}
+modWTint<-glm(breaks~wool + tension + wool:tension,data=warpbreaks,family=poisson)
+print(summary(modWTint)$coefficients)
+print(1-pchisq(modWTint$deviance,df=modWTint$df.residual)) 
+```
+
+Individuals terms and one of the interaction terms are significant. The deviance has improved (`r round(digits=2,modWTint$deviance)`) but is still too large for the df (`r modWTint$df.residual`).
+
+# Exercise 4
+
+The largest, most complex model (individual terms + interaction terms) fits best: it has the best deviance and all terms achieve significance (even if only one of the interaction terms achieves significance, we should still add both). This means both `wool` and `tension` help to predict the number of breaks.
+
+However the deviance is till to large and this indicates we either fail to explain substantial amounts of variation in the data through unmeasured characteristics of the different wools or the Poisson model is not the correct one.
+
+In fact for this dataset it turns out that a negative binomial GLM fits better.
+
+# 
+
+[end of ST6103 GLM Practical 3]
